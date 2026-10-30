@@ -4,6 +4,4 @@ build
 .expo
 coverage
 package-lock.json
-n8n
 .husky
-db/migrations
