@@ -24,17 +24,17 @@ npm install
 cp .env.example .env      # en PowerShell: Copy-Item .env.example .env
 ```
 
-## Crear el proyecto de Vite (una sola vez)
+## Ejecutar
 
-El proyecto va en la raíz del repositorio. Como la raíz ya tiene la configuración, la plantilla se crea en una carpeta aparte y se trae:
+Con la API corriendo en local (`http://localhost:3000`):
 
-1. Fuera del repositorio: `npm create vite@latest faltauno-web-tmp -- --template react-ts`
-2. Copiar a la raíz del repositorio: `index.html`, `public/`, `src/` y `vite.config.ts`.
-3. En el `package.json` del repositorio, agregar los scripts `dev`, `build` y `preview` de la plantilla, y sus `dependencies`. De sus `devDependencies`, agregar solo las de Vite, React y tipos (`vite`, `@vitejs/plugin-react`, `@types/react`, `@types/react-dom`), sin las de ESLint.
-4. Conservar `tsconfig.json`, `eslint.config.mjs`, `.gitignore` y `README.md` del repositorio. No copiar `tsconfig.app.json` ni `tsconfig.node.json` de la plantilla.
-5. `npm install`, `npm run dev` y borrar la carpeta temporal.
+```bash
+npm run dev       # http://localhost:5173
+npm run build     # verifica los tipos y genera la versión de producción en dist/
+npm run preview   # sirve lo que quedó en dist/
+```
 
-Recomendado: el script `build` como `"tsc --noEmit && vite build"`, para que el CI también verifique los tipos.
+En `.env`, `VITE_GOOGLE_CLIENT_ID` es el Client ID de OAuth de tipo "Aplicación web". Si queda vacío, no se muestra el botón de Google.
 
 ## Calidad de código
 

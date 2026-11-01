@@ -1,0 +1,279 @@
+/* Estilo de los mockups (W01): tipografías Figtree y Bricolage Grotesque (licencia OFL, ver public/fonts) */
+@font-face {
+  font-family: 'Figtree';
+  src: url('/fonts/Figtree.ttf') format('truetype');
+  font-weight: 300 900;
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/fonts/BricolageGrotesque.ttf') format('truetype');
+  font-weight: 200 800;
+}
+
+:root {
+  --color-fondo: #f3f6f2;
+  --color-texto: #0f2537;
+  --color-texto-suave: #4a5d6b;
+  --color-borde: #c9d3cf;
+  --color-primario: #1d6fb8;
+  --color-primario-oscuro: #13507f;
+  --color-primario-claro: #d6e8f5;
+  --color-acento: #ef7d22;
+  --color-error: #b3261e;
+  --color-error-fondo: #fdecea;
+  --fuente-texto: 'Figtree', sans-serif;
+  --fuente-titulos: 'Bricolage Grotesque', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente-texto);
+}
+
+a {
+  color: var(--color-primario);
+}
+a:hover {
+  color: var(--color-primario-oscuro);
+}
+
+h1,
+h2 {
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  margin: 0;
+}
+
+/* --- Componentes --- */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.campo__etiquetas {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.campo label {
+  font-weight: 600;
+  font-size: 14px;
+}
+.campo input {
+  height: 48px;
+  border: 1px solid var(--color-borde);
+  border-radius: 14px;
+  padding: 0 14px;
+  font-size: 16px;
+  font-family: var(--fuente-texto);
+  background: #fff;
+  color: var(--color-texto);
+}
+.campo input:focus {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 1px;
+}
+.campo input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+.campo__error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-error);
+}
+
+.boton {
+  height: 50px;
+  border: none;
+  border-radius: 25px;
+  background: var(--color-primario);
+  color: #fff;
+  font-family: var(--fuente-texto);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+.boton:hover:not(:disabled) {
+  background: var(--color-primario-oscuro);
+}
+.boton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.aviso-error {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--color-error-fondo);
+  color: var(--color-error);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.enlace-pendiente {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primario);
+  cursor: default;
+}
+
+/* --- W01 Login --- */
+.login {
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+}
+.login__portada {
+  flex: 1 1 520px;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-primario-oscuro);
+  color: #fff;
+  padding: 4rem 4.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  min-height: 32rem;
+}
+.login__ola {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 300px;
+}
+.login__marca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--fuente-titulos);
+  font-size: 2rem;
+  font-weight: 800;
+}
+.login__logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login__logo img {
+  width: 50px;
+  height: 48px;
+  object-fit: contain;
+}
+.login__lema {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 32rem;
+}
+.login__lema h1 {
+  font-size: 3rem;
+  line-height: 1.05;
+}
+.login__lema p {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--color-primario-claro);
+}
+.login__etiquetas {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.login__etiquetas li {
+  padding: 8px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.14);
+  font-weight: 600;
+}
+.login__panel {
+  flex: 1 1 440px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+.login__formulario {
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.login__encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.login__encabezado h2 {
+  font-size: 2rem;
+}
+.login__encabezado p,
+.login__legal {
+  margin: 0;
+  color: var(--color-texto-suave);
+}
+.login__legal {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.login__google {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+.separador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-texto-suave);
+  font-size: 14px;
+}
+.separador::before,
+.separador::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-borde);
+}
+
+@media (max-width: 640px) {
+  .login__portada {
+    padding: 2.5rem 1.5rem;
+    min-height: auto;
+  }
+  .login__lema h1 {
+    font-size: 2.2rem;
+  }
+}
+
+/* --- Pantalla principal provisoria --- */
+.inicio {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
