@@ -277,3 +277,187 @@ h2 {
   flex-direction: column;
   gap: 1rem;
 }
+
+/* --- Pantallas con sesión --- */
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 2rem;
+  background: #fff;
+  border-bottom: 1px solid var(--color-borde);
+}
+.encabezado__marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--fuente-titulos);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primario-oscuro);
+  text-decoration: none;
+}
+.encabezado__marca img {
+  width: 36px;
+  height: 35px;
+  object-fit: contain;
+}
+.encabezado__perfil {
+  display: flex;
+  border-radius: 50%;
+  text-decoration: none;
+}
+.encabezado__perfil:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatar--iniciales {
+  background: var(--color-acento);
+  color: #fff;
+  font-weight: 700;
+}
+
+.tarjeta {
+  margin: 0;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid var(--color-borde);
+  border-radius: 20px;
+}
+.texto-suave {
+  margin: 0;
+  color: var(--color-texto-suave);
+}
+.etiqueta {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: var(--color-primario-claro);
+  color: var(--color-primario-oscuro);
+  font-size: 14px;
+  font-weight: 600;
+}
+.etiqueta--archivada {
+  background: #e3efe3;
+  color: #2d5a2d;
+}
+.etiqueta--cancelada {
+  background: var(--color-error-fondo);
+  color: var(--color-error);
+}
+.boton-secundario {
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--color-primario);
+  border-radius: 22px;
+  background: #fff;
+  color: var(--color-primario);
+  font-family: var(--fuente-texto);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.boton-secundario:hover:not(:disabled) {
+  background: var(--color-primario-claro);
+}
+.boton-secundario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- CU04 Perfil --- */
+.perfil {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.perfil__datos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+.perfil__texto {
+  flex: 1 1 18rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.perfil__texto h1 {
+  font-size: 2rem;
+}
+.perfil__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.perfil__resumen {
+  margin: 0;
+}
+.perfil__valoracion {
+  font-weight: 700;
+}
+.perfil__biografia {
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+.perfil__deportes {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.perfil__error,
+.historial__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.historial {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.historial h2 {
+  font-size: 1.35rem;
+}
+.historial__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.historial__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+.historial__item:last-child {
+  border-bottom: none;
+}
+.historial__nombre {
+  margin: 0 0 2px;
+  font-weight: 700;
+}
