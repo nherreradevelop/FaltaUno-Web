@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router';
 import type { Perfil } from '../api/tipos';
 import { obtenerMiPerfil, obtenerPerfilDeUsuario } from '../api/usuarios';
-import { formatearCantidadActividades, formatearValoracion } from '../comun/formato';
+import { formatearCantidadActividades, formatearCantidadValoraciones, formatearValoracion } from '../comun/formato';
 import { Avatar } from '../componentes/Avatar';
 import { HistorialDeActividades } from '../componentes/HistorialDeActividades';
 import { useSesion } from '../sesion/SesionContexto';
@@ -84,6 +84,10 @@ function DatosDelPerfil({ perfil }: { perfil: Perfil }) {
         {perfil.esPropio && <p className="texto-suave">{perfil.email}</p>}
         <p className="perfil__resumen">
           <Valoracion valoracionPromedio={perfil.valoracionPromedio} />
+          {/* CU04 FP: en el perfil propio se indica cuántas valoraciones recibió */}
+          {perfil.esPropio && perfil.cantidadValoraciones > 0 && (
+            <span className="texto-suave"> · {formatearCantidadValoraciones(perfil.cantidadValoraciones)}</span>
+          )}
           {/* CU04 A1: en el perfil de otro usuario se muestra cuántas actividades tiene, no cuáles */}
           {!perfil.esPropio && <span className="texto-suave"> · {formatearCantidadActividades(perfil.cantidadActividades)}</span>}
         </p>
