@@ -1,6 +1,9 @@
 import { useSesion } from '../sesion/SesionContexto';
 
-/** Pantalla principal provisoria: destino del CU01 FP paso 8. Pendiente: CU08 – Buscar actividades (W02 Explorar). */
+/**
+ * Pantalla principal provisoria: destino del CU01 FP paso 8. Desde el encabezado se llega a "Mi perfil" (CU04).
+ * Pendiente: CU08 – Buscar actividades (W02 Explorar).
+ */
 export function InicioPage() {
   const { sesion } = useSesion();
   return (
