@@ -1,4 +1,4 @@
-import { iniciales, urlDeFotoAlTamano } from '../comun/formato';
+import { colorDeAvatar, iniciales, urlDeFotoAlTamano } from '../comun/formato';
 
 interface PropsAvatar {
   nombre: string;
@@ -15,7 +15,12 @@ export function Avatar({ nombre, fotoUrl, tamano }: PropsAvatar) {
     return <img className="avatar" src={urlDeFotoAlTamano(fotoUrl, tamano)} alt={`Foto de ${nombre}`} style={estiloTamano} />;
   }
   return (
-    <span className="avatar avatar--iniciales" role="img" aria-label={nombre} style={estiloTamano}>
+    <span
+      className="avatar avatar--iniciales"
+      role="img"
+      aria-label={nombre}
+      style={{ ...estiloTamano, background: colorDeAvatar(nombre) }}
+    >
       {iniciales(nombre)}
     </span>
   );

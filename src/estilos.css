@@ -117,6 +117,16 @@ h2 {
   line-height: 1.4;
 }
 
+.aviso-info {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--color-primario-claro);
+  color: var(--color-primario-oscuro);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
 .enlace-pendiente {
   font-size: 14px;
   font-weight: 600;
@@ -350,6 +360,19 @@ h2 {
   background: #e3efe3;
   color: #2d5a2d;
 }
+.etiqueta--programada {
+  background: #e3efe3;
+  color: #2d5a2d;
+}
+.etiqueta--iniciada {
+  background: #fdf0e3;
+  color: #9a4a0c;
+}
+.etiqueta--neutra {
+  background: #fff;
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde);
+}
 .etiqueta--cancelada {
   background: var(--color-error-fondo);
   color: var(--color-error);
@@ -369,6 +392,13 @@ h2 {
 }
 .boton-secundario:hover:not(:disabled) {
   background: var(--color-primario-claro);
+}
+.boton-secundario--peligro {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+.boton-secundario--peligro:hover:not(:disabled) {
+  background: var(--color-error-fondo);
 }
 .boton-secundario:disabled {
   opacity: 0.5;
@@ -458,6 +488,544 @@ h2 {
   border-bottom: none;
 }
 .historial__nombre {
+  display: block;
   margin: 0 0 2px;
   font-weight: 700;
+  color: var(--color-texto);
+}
+
+/* --- CU09 Detalle de actividad --- */
+.actividad {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.actividad h1 {
+  font-size: 2rem;
+}
+.actividad h2 {
+  font-size: 1.2rem;
+}
+.actividad__cabecera,
+.actividad__pronostico {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.actividad__etiquetas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.actividad__organizador {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--color-texto);
+  text-decoration: none;
+  align-self: flex-start;
+}
+/* Dos columnas: lo que se lee para decidir y, al lado, las acciones y las pestañas. En pantallas angostas se apilan. */
+.actividad__columnas {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+.actividad__principal {
+  flex: 999 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.actividad__lateral {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+/* Los datos clave en una sola fila, también en el celular: se reparten el ancho y el texto pasa de línea si no entra */
+.actividad__resumen {
+  display: flex;
+  gap: 8px;
+}
+.actividad__resumen > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.actividad__dato {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.actividad__dato p {
+  margin: 0;
+}
+/* "Cuándo": en una sola línea si entra; si la tarjeta es angosta, día y hora en dos líneas */
+.actividad__dato {
+  container-type: inline-size;
+}
+.actividad__cuando::first-letter {
+  text-transform: uppercase;
+}
+.actividad__dato-linea {
+  white-space: nowrap;
+}
+@container (max-width: 15rem) {
+  .actividad__cuando-separador {
+    display: none;
+  }
+  .actividad__dato-linea {
+    display: block;
+    white-space: normal;
+  }
+}
+.actividad__dato-extra {
+  font-weight: 400;
+  font-size: 14px;
+}
+.cupo {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-primario-claro);
+  overflow: hidden;
+}
+.cupo__relleno {
+  height: 100%;
+  background: var(--color-primario);
+}
+.etiqueta--rol {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-primario);
+  color: #fff;
+}
+.actividad__dato-titulo {
+  font-size: 13px;
+  color: var(--color-texto-suave);
+}
+.actividad__dato-valor {
+  font-weight: 700;
+}
+.actividad__descripcion {
+  margin: 0;
+  line-height: 1.6;
+}
+.actividad__pronostico {
+  background: var(--color-primario-claro);
+  border-color: var(--color-primario-claro);
+}
+.actividad__pronostico h2 {
+  color: var(--color-primario-oscuro);
+}
+.actividad__pronostico p {
+  margin: 0;
+  line-height: 1.5;
+}
+.actividad__nivel-recomendado {
+  font-weight: 700;
+  color: #2d5a2d;
+}
+.actividad__pie-pronostico {
+  font-size: 13px;
+}
+.actividad__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mapa {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mapa__marco {
+  width: 100%;
+  height: 320px;
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden; /* el mapa interactivo es un div: sin esto no respeta el borde redondeado */
+}
+.mapa__enlace {
+  font-weight: 600;
+  align-self: flex-start;
+}
+.recorrido {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.recorrido__punto {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.recorrido__marca {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 50%;
+}
+.recorrido__marca--origen {
+  border: 2px solid var(--color-primario);
+  background: #fff;
+}
+.recorrido__marca--destino {
+  background: var(--color-acento);
+}
+.recorrido__titulo {
+  display: block;
+  font-size: 13px;
+  color: var(--color-texto-suave);
+}
+.recorrido__direccion {
+  display: block;
+  font-weight: 700;
+}
+
+.participantes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.participantes__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.participantes__item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+.participantes__item:last-child {
+  border-bottom: none;
+}
+/* Una sola línea por participante: avatar y nombre a la izquierda; etiqueta, estrellas o Remover a la derecha */
+.participantes__persona {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.participantes__persona > :not(.participantes__usuario) {
+  flex-shrink: 0;
+}
+.participantes__usuario {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--color-texto);
+  text-decoration: none;
+}
+.participantes__texto {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.participantes__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.participantes__rol {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primario-oscuro);
+}
+.participantes__remover {
+  height: 36px;
+  align-self: center;
+}
+.participantes__vos {
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+.participantes__rol--invitado {
+  color: var(--color-texto-suave);
+  font-weight: 400;
+}
+.participantes__avatar-invitado {
+  width: 40px;
+  height: 40px;
+  border: 1px dashed var(--color-borde);
+  background: #fff;
+  color: var(--color-texto-suave);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* CU09: acciones y pestañas del detalle */
+.actividad__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.actividad__acciones-secundarias {
+  display: flex;
+  gap: 8px;
+}
+.actividad__acciones-secundarias .boton-con-icono {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding: 0 10px;
+}
+.boton-con-icono svg {
+  flex-shrink: 0;
+}
+.actividad__accion-principal {
+  width: 100%;
+  height: 52px;
+}
+.boton-con-icono {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.boton-icono {
+  width: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.menu-opciones {
+  position: relative;
+}
+.menu-opciones summary {
+  list-style: none;
+}
+.menu-opciones summary::-webkit-details-marker {
+  display: none;
+}
+.menu-opciones__lista {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  min-width: 15rem;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--color-borde);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(15, 37, 55, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+.menu-opciones__item {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  font-family: var(--fuente-texto);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-texto);
+}
+.menu-opciones__item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.menu-opciones__item--peligro {
+  color: var(--color-error);
+  font-weight: 700;
+}
+.actividad__accion-principal:disabled {
+  cursor: not-allowed;
+}
+.actividad__pestanas {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.pestanas {
+  display: flex;
+  border-bottom: 1px solid var(--color-borde);
+  overflow-x: auto;
+}
+/* Las pestañas se reparten el ancho: entran las tres aun en la columna angosta */
+.pestanas__pestana {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 10px 8px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--color-texto-suave);
+  font-family: var(--fuente-texto);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pestanas__pestana:hover {
+  color: var(--color-texto);
+}
+.pestanas__pestana[aria-selected='true'] {
+  color: var(--color-primario);
+  border-bottom-color: var(--color-primario);
+}
+.pestanas__pestana:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: -2px;
+}
+
+/* CU09: estrellas para valorar participantes (pendiente CU21) */
+.estrellas {
+  display: inline-flex;
+  gap: 2px;
+}
+.estrellas__estrella {
+  padding: 0 2px;
+  border: none;
+  background: none;
+  color: var(--color-acento);
+  font-size: 16px;
+  line-height: 1;
+}
+.estrellas__estrella:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/*
+ * Pantallas angostas: una sola columna. Las columnas se "deshacen" (display: contents) para ordenar los bloques:
+ * las acciones quedan arriba, justo después del resumen, y las pestañas al final.
+ */
+@media (max-width: 960px) {
+  .actividad__columnas {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+  .actividad__principal,
+  .actividad__lateral {
+    display: contents;
+  }
+  .actividad__cabecera {
+    order: 1;
+  }
+  .actividad__resumen {
+    order: 2;
+  }
+  .actividad__acciones {
+    order: 3;
+  }
+  .actividad__bloque-descripcion {
+    order: 4;
+  }
+  .actividad__pronostico {
+    order: 5;
+  }
+  .mapa {
+    order: 6;
+  }
+  .actividad__pestanas {
+    order: 7;
+  }
+  .actividad__dato {
+    padding: 12px;
+  }
+}
+
+/* CU09: volver, pronóstico vacío, aviso de próximamente, título de sección única y esqueleto de carga */
+.actividad__volver {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primario);
+  font-family: var(--fuente-texto);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+.actividad__volver:hover {
+  color: var(--color-primario-oscuro);
+}
+.actividad__pronostico--vacio {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.actividad__pronostico--vacio p {
+  color: var(--color-primario-oscuro);
+}
+.actividad__proximamente {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-texto-suave);
+  text-align: center;
+}
+.actividad .actividad__titulo-seccion {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-borde);
+  font-family: var(--fuente-texto);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-texto);
+}
+.esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.esqueleto__fila {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.esqueleto__bloque {
+  border-radius: 14px;
+  background: linear-gradient(90deg, #e6ebe8 25%, #f0f3f1 50%, #e6ebe8 75%);
+  background-size: 200% 100%;
+  animation: esqueleto-brillo 1.4s ease-in-out infinite;
+}
+.esqueleto__bloque--etiquetas {
+  width: 14rem;
+  height: 28px;
+}
+.esqueleto__bloque--titulo {
+  width: 60%;
+  height: 40px;
+}
+.esqueleto__bloque--tarjeta {
+  height: 76px;
+}
+.esqueleto__bloque--grande {
+  height: 140px;
+}
+@keyframes esqueleto-brillo {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto__bloque {
+    animation: none;
+  }
 }

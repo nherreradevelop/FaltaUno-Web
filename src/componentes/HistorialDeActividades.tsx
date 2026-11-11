@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { obtenerMiHistorial } from '../api/usuarios';
 import type { ActividadDelHistorial } from '../api/tipos';
 import { formatearFecha } from '../comun/formato';
@@ -61,7 +62,10 @@ export function HistorialDeActividades() {
           {actividades.map((actividad) => (
             <li key={actividad.id} className="historial__item">
               <div>
-                <p className="historial__nombre">{actividad.nombre}</p>
+                {/* CU09 trigger: el usuario selecciona una actividad desde sus actividades */}
+                <Link to={`/actividades/${actividad.id}`} className="historial__nombre">
+                  {actividad.nombre}
+                </Link>
                 <p className="texto-suave">
                   {actividad.deporte} · {formatearFecha(actividad.fechaHoraInicio)}
                 </p>
