@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { buscarActividades } from '../api/actividades';
-import type { ActividadEncontrada, FiltrosDeBusqueda, Ubicacion } from '../api/tipos';
+import type { ActividadEncontrada, FiltrosDeBusqueda, UbicacionDelUsuario } from '../api/tipos';
 import { MENSAJE_SIN_ACTIVIDADES, mensajeDeErrorDeBusqueda } from '../paginas/mensajesExplorar';
 import { TarjetaActividad } from './TarjetaActividad';
 
 interface PropsResultados {
   filtros: FiltrosDeBusqueda;
-  ubicacion: Ubicacion | null;
+  ubicacion: UbicacionDelUsuario | null;
 }
 
 /**

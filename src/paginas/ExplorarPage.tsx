@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { listarDepartamentos } from '../api/actividades';
 import { listarDeportes } from '../api/deportes';
-import type { Deporte, FiltrosDeBusqueda, Ubicacion } from '../api/tipos';
+import type { Deporte, FiltrosDeBusqueda, UbicacionDelUsuario } from '../api/tipos';
 import { obtenerUbicacion } from '../comun/ubicacion';
 import { FiltrosDeActividades, type ErroresDeFiltros } from '../componentes/FiltrosDeActividades';
 import { ResultadosDeBusqueda } from '../componentes/ResultadosDeBusqueda';
@@ -73,13 +74,16 @@ function useOpcionesDeFiltros(): OpcionesDeFiltros {
 /**
  * W02 – CU08 Buscar actividades (Explorar). Es la pantalla principal con sesión.
  * Al entrar se pide la ubicación del navegador una sola vez; sin permiso, se ordena solo por fecha (RN1).
+ * También muestra el aviso con el que vuelve otra pantalla (CU09 E2: la actividad no está disponible).
  */
 export function ExplorarPage() {
+  const location = useLocation();
+  const aviso = (location.state as { aviso?: string } | null)?.aviso;
   const opciones = useOpcionesDeFiltros();
   const [filtros, setFiltros] = useState<FiltrosDeBusqueda>(FILTROS_VACIOS);
   const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosDeBusqueda>(FILTROS_VACIOS);
   /** undefined: todavía se está pidiendo; null: sin permiso o no disponible. */
-  const [ubicacion, setUbicacion] = useState<Ubicacion | null | undefined>(undefined);
+  const [ubicacion, setUbicacion] = useState<UbicacionDelUsuario | null | undefined>(undefined);
 
   useEffect(() => {
     let vigente = true;
@@ -125,6 +129,12 @@ export function ExplorarPage() {
           <h1 id="titulo-explorar">Actividades disponibles</h1>
           {ubicacion !== undefined && <p className="texto-suave">{orden}</p>}
         </div>
+
+        {aviso && (
+          <p className="aviso-info" role="alert">
+            {aviso}
+          </p>
+        )}
 
         {/* ER2 */}
         {opciones.fallaron.length > 0 && (

@@ -1,5 +1,6 @@
+import { Link } from 'react-router';
 import type { ActividadEncontrada } from '../api/tipos';
-import { formatearCuposLibres, formatearFechaHora, formatearValoracionDelOrganizador } from '../comun/formato';
+import { formatearCuposLibres, formatearFechaHoraCorta, formatearValoracionDelOrganizador } from '../comun/formato';
 import { ETIQUETA_NIVEL } from '../paginas/mensajesExplorar';
 
 /**
@@ -16,7 +17,7 @@ export function TarjetaActividad({ actividad }: { actividad: ActividadEncontrada
       </div>
       <h2 className="tarjeta-actividad__nombre">{actividad.nombre}</h2>
       <p className="texto-suave">
-        {formatearFechaHora(actividad.fechaHoraInicio)} · {actividad.departamento}
+        {formatearFechaHoraCorta(actividad.fechaHoraInicio)} · {actividad.departamento}
       </p>
       {actividad.organizador && (
         <p className="tarjeta-actividad__organizador">
@@ -29,10 +30,10 @@ export function TarjetaActividad({ actividad }: { actividad: ActividadEncontrada
       <div className="tarjeta-actividad__pie">
         <span className="dato">{ETIQUETA_NIVEL[actividad.nivel]}</span>
         <span className="dato">{formatearCuposLibres(actividad.cuposLibres)}</span>
-        {/* Pendiente: CU09 – Detalle de actividad */}
-        <button type="button" className="boton-secundario tarjeta-actividad__detalle" disabled>
+        {/* CU09 – Detalle de actividad */}
+        <Link to={`/actividades/${encodeURIComponent(actividad.id)}`} className="boton-secundario tarjeta-actividad__detalle">
           Ver detalle
-        </button>
+        </Link>
       </div>
     </article>
   );
