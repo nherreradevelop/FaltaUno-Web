@@ -35,6 +35,8 @@ function guardarSesion(sesion: Sesion | null): void {
  */
 class AlmacenSesion {
   private sesion: Sesion | null = leerSesionGuardada();
+  /** CU08 ER3 (y cualquier pantalla con sesión): la API rechazó el token, para avisar en el login que la sesión expiró. */
+  private vencida = false;
 
   readonly cambios = new Observable<Sesion | null>((error) => console.error('Falló un observador de la sesión', error));
 
@@ -47,7 +49,21 @@ class AlmacenSesion {
   }
 
   abrir(sesion: Sesion): void {
+    this.vencida = false;
     this.reemplazar(sesion);
+  }
+
+  /** La API respondió 401 con un token guardado: la sesión venció o se cerró desde otro lado. */
+  cerrarPorVencimiento(): void {
+    if (this.sesion !== null) {
+      this.vencida = true;
+      this.reemplazar(null);
+    }
+  }
+
+  /** true si la última sesión se cerró porque venció (no porque el usuario salió). */
+  sesionVencio(): boolean {
+    return this.vencida;
   }
 
   cerrar(): void {
