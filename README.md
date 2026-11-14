@@ -36,6 +36,14 @@ npm run preview   # sirve lo que quedó en dist/
 
 En `.env`, `VITE_GOOGLE_CLIENT_ID` es el Client ID de OAuth de tipo "Aplicación web". Si queda vacío, no se muestra el botón de Google.
 
+## Dashboard y filtros
+
+El dashboard muestra primero las actividades que gestionás, luego las que integrás y finalmente «Actividades que podrían interesarte». Cada sección tiene su propia paginación; las actividades propias siguen visibles aunque estén completas.
+
+Los filtros se aplican solo a las recomendaciones. Al entrar por primera vez en una sesión se seleccionan tus deportes de interés. La selección aplicada se conserva al navegar, recargar o reabrir y se descarta al cerrar sesión, vencer o cambiar de cuenta. Quitar todos los deportes deja la búsqueda sin ese filtro; no restaura automáticamente los intereses. La selección es local a cada dispositivo.
+
+Las tarjetas muestran «Buscando traslado» y/o «Con locomoción» según lo declarado por el organizador. Tener vehículo no garantiza asientos disponibles. El formulario de creación muestra «Traslado» antes de «Recorrido» y usa «Participantes externos» en sus textos.
+
 ## Calidad de código
 
 - **Prettier** da el formato (`.prettierrc`) y **ESLint** revisa el código (`eslint.config.mjs`).

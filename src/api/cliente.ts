@@ -40,11 +40,18 @@ async function leerError(respuesta: Response): Promise<ErrorApi> {
  * Única forma de llamar a la API desde la web: agrega el token, corta por tiempo de espera
  * y convierte cualquier error en ErrorApi.
  */
-export async function pedir<T>(ruta: string, opciones: { metodo?: string; cuerpo?: unknown } = {}): Promise<T> {
+export async function pedir<T>(
+  ruta: string,
+  opciones: { metodo?: string; cuerpo?: unknown; claveIdempotencia?: string } = {},
+): Promise<T> {
   const token = almacenSesion.token();
   const encabezados: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) {
     encabezados.Authorization = `Bearer ${token}`;
+  }
+
+  if (opciones.claveIdempotencia) {
+    encabezados['Idempotency-Key'] = opciones.claveIdempotencia;
   }
 
   let respuesta: Response;
