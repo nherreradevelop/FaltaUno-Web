@@ -14,8 +14,16 @@ interface PropsMapa {
   destino: Ubicacion;
 }
 
-/** CU09 A2: "Cómo llegar": salida y destino juntos con un mapa de Google Maps. */
-export function MapaDelRecorrido({ origen, destino }: PropsMapa) {
+interface PropsMapaDelRecorrido {
+  /** null si la actividad no tiene punto de partida (CU10: el origen es opcional). */
+  origen: Ubicacion | null;
+  destino: Ubicacion;
+}
+
+/** CU09 A2: "Cómo llegar": salida y destino juntos con un mapa de Google Maps. Sin salida, solo el destino. */
+export function MapaDelRecorrido({ origen: origenIndicado, destino }: PropsMapaDelRecorrido) {
+  // Sin punto de partida, el recorrido es un solo lugar: el destino
+  const origen = origenIndicado ?? destino;
   const unSoloLugar = esElMismoLugar(origen, destino);
   const descripcionDelMapa = unSoloLugar
     ? `Mapa de ${destino.direccion}`

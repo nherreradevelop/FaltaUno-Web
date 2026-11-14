@@ -42,12 +42,16 @@ async function leerError(respuesta: Response): Promise<ErrorApi> {
  */
 export async function pedir<T>(
   ruta: string,
-  opciones: { metodo?: string; cuerpo?: unknown; tiempoDeEsperaMs?: number } = {},
+  opciones: { metodo?: string; cuerpo?: unknown; claveIdempotencia?: string; tiempoDeEsperaMs?: number } = {},
 ): Promise<T> {
   const token = almacenSesion.token();
   const encabezados: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) {
     encabezados.Authorization = `Bearer ${token}`;
+  }
+
+  if (opciones.claveIdempotencia) {
+    encabezados['Idempotency-Key'] = opciones.claveIdempotencia;
   }
 
   let respuesta: Response;

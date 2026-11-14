@@ -32,7 +32,9 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
       return;
     }
     obtenerUsuarioActual()
-      .then((usuario) => almacenSesion.abrir({ token: sesionGuardada.token, usuario }))
+      .then((usuario) => {
+        if (almacenSesion.token() === sesionGuardada.token) almacenSesion.abrir({ token: sesionGuardada.token, usuario });
+      })
       .catch(() => undefined);
   }, []);
 

@@ -5,7 +5,7 @@ import { ETIQUETA_NIVEL } from '../paginas/mensajesExplorar';
 
 /**
  * CU08: una actividad de la búsqueda (mockup W02).
- * Muestra nombre, deporte, fecha y hora, departamento, organizador con su valoración, nivel y cupos libres;
+ * Muestra nombre, deporte, fecha y hora, departamento, organizador con su valoración, nivel, cupos libres y traslado declarado;
  * si el usuario la organiza, lo indica.
  */
 export function TarjetaActividad({ actividad }: { actividad: ActividadEncontrada }) {
@@ -13,9 +13,15 @@ export function TarjetaActividad({ actividad }: { actividad: ActividadEncontrada
     <article className="tarjeta tarjeta-actividad">
       <div className="tarjeta-actividad__etiquetas">
         <span className="etiqueta">{actividad.deporte.nombre}</span>
+        {actividad.requiereVehiculo && <span className="etiqueta">Buscando traslado</span>}
+        {actividad.tieneVehiculo && (
+          <span className="etiqueta" title="El organizador indicó que tiene vehículo; no garantiza asientos disponibles.">
+            Con locomoción
+          </span>
+        )}
         {actividad.esOrganizador && <span className="etiqueta etiqueta--organizador">Organizada por ti</span>}
       </div>
-      <h2 className="tarjeta-actividad__nombre">{actividad.nombre}</h2>
+      <h3 className="tarjeta-actividad__nombre">{actividad.nombre}</h3>
       <p className="texto-suave">
         {formatearFechaHoraCorta(actividad.fechaHoraInicio)} · {actividad.departamento}
       </p>
