@@ -32,7 +32,8 @@ export function iniciales(nombre: string): string {
  * Color de fondo del avatar con iniciales: siempre el mismo para el mismo nombre, para distinguir personas en las listas.
  * Todos tienen contraste de al menos 4.5:1 con las iniciales en blanco.
  */
-const COLORES_DE_AVATAR = ['#B45309', '#1D6FB8', '#2E7D4F', '#6D4AA3', '#0F766E', '#13507F'];
+/** Roles --color-avatar-1..6 de la paleta (estilos.css). */
+const COLORES_DE_AVATAR = [1, 2, 3, 4, 5, 6].map((numero) => `var(--color-avatar-${numero})`);
 
 export function colorDeAvatar(nombre: string): string {
   let suma = 0;

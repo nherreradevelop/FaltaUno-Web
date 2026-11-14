@@ -19,7 +19,7 @@ export function TarjetaActividad({ actividad }: { actividad: ActividadEncontrada
             Con locomoción
           </span>
         )}
-        {actividad.esOrganizador && <span className="etiqueta etiqueta--organizador">Organizada por ti</span>}
+        {actividad.esOrganizador && <span className="etiqueta etiqueta--organizador">Organizada por vos</span>}
       </div>
       <h3 className="tarjeta-actividad__nombre">{actividad.nombre}</h3>
       <p className="texto-suave">

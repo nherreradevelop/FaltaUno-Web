@@ -102,9 +102,22 @@ export function LoginPage() {
     <main className="login">
       <section className="login__portada">
         <svg className="login__ola" aria-hidden="true" viewBox="0 0 720 300" preserveAspectRatio="none">
-          <path d="M0 150 C 140 80, 280 230, 430 150 S 640 70, 720 120 L 720 300 L 0 300 Z" fill="#1D6FB8" />
-          <path d="M0 220 C 160 170, 320 280, 480 210 S 660 170, 720 190 L 720 300 L 0 300 Z" fill="#5AA4DC" opacity="0.5" />
-          <path d="M470 205 C 540 175, 610 185, 670 240" stroke="#EF7D22" strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path
+            d="M0 150 C 140 80, 280 230, 430 150 S 640 70, 720 120 L 720 300 L 0 300 Z"
+            style={{ fill: 'var(--color-primario)' }}
+          />
+          <path
+            d="M0 220 C 160 170, 320 280, 480 210 S 660 170, 720 190 L 720 300 L 0 300 Z"
+            style={{ fill: 'var(--color-primario-medio)' }}
+            opacity="0.5"
+          />
+          <path
+            d="M470 205 C 540 175, 610 185, 670 240"
+            style={{ stroke: 'var(--color-acento)' }}
+            strokeWidth="8"
+            fill="none"
+            strokeLinecap="round"
+          />
         </svg>
         <div className="login__marca">
           <span className="login__logo">

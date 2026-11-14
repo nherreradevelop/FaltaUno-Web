@@ -1,38 +1,25 @@
 import { Link } from 'react-router';
-import { useActividadesPorGrupo } from '../comun/useActividadesPorGrupo';
-import type { FiltrosDeBusqueda, GrupoDeActividades, UbicacionDelUsuario } from '../api/tipos';
+import type { ResultadoDeGrupo } from '../comun/useActividadesPorGrupo';
 import { MENSAJE_SIN_ACTIVIDADES } from '../paginas/mensajesExplorar';
+import { EsqueletoDeActividades } from './EsqueletoDeActividades';
 import { TarjetaActividad } from './TarjetaActividad';
 
 interface PropsResultados {
-  grupo: GrupoDeActividades;
+  id: string;
   titulo: string;
-  filtros: FiltrosDeBusqueda;
-  ubicacion: UbicacionDelUsuario | null;
-  /** true: la sección entera (con su título) no se muestra mientras no tenga actividades. Un error sí se muestra. */
-  ocultarSiNoHay?: boolean;
+  resultado: ResultadoDeGrupo;
+  /** CU08 E1: solo la sección "podrían interesarte" sugiere crear una actividad cuando está vacía. */
+  sugerirCrear?: boolean;
 }
 
 /**
  * CU08: una sección del dashboard (título y actividades), de a 10 actividades.
- * El hook reinicia su paginación al cambiar filtros o ubicación.
+ * Solo presenta: la página carga los datos de cada sección con useActividadesPorGrupo.
  */
-export function ResultadosDeBusqueda({ grupo, titulo, filtros, ubicacion, ocultarSiNoHay = false }: PropsResultados) {
-  const {
-    actividades,
-    hayMas,
-    cargando,
-    error: mensajeError,
-    reintentar,
-    verMas,
-  } = useActividadesPorGrupo(grupo, filtros, ubicacion);
-
+export function ResultadosDeBusqueda({ id, titulo, resultado, sugerirCrear = false }: PropsResultados) {
+  const { actividades, hayMas, cargando, error: mensajeError, reintentar, verMas } = resultado;
   const sinActividades = !cargando && !mensajeError && actividades.length === 0;
-  const idTitulo = `titulo-${grupo}`;
-
-  if (ocultarSiNoHay && actividades.length === 0 && !mensajeError) {
-    return null;
-  }
+  const idTitulo = `titulo-${id}`;
 
   return (
     <section className="resultados" aria-labelledby={idTitulo}>
@@ -41,16 +28,10 @@ export function ResultadosDeBusqueda({ grupo, titulo, filtros, ubicacion, oculta
         {/* E1 */}
         {sinActividades && (
           <div className="tarjeta resultados__vacio">
-            <p>
-              {grupo === 'otras'
-                ? MENSAJE_SIN_ACTIVIDADES
-                : grupo === 'gestionando'
-                  ? 'Todavía no estás gestionando actividades.'
-                  : 'Todavía no estás unido a actividades.'}
-            </p>
+            <p>{MENSAJE_SIN_ACTIVIDADES}</p>
             {/* CU08 E1: se sugiere crear una (CU10) */}
-            {grupo === 'otras' && (
-              <Link to="/actividades/crear" className="boton boton--acento enlace-boton">
+            {sugerirCrear && (
+              <Link to="/actividades/crear" className="boton-secundario enlace-boton">
                 + Crear actividad
               </Link>
             )}
@@ -67,7 +48,7 @@ export function ResultadosDeBusqueda({ grupo, titulo, filtros, ubicacion, oculta
           </ul>
         )}
 
-        {cargando && <p className="texto-suave">Cargando actividades…</p>}
+        {cargando && <EsqueletoDeActividades cantidad={actividades.length > 0 ? 1 : 2} />}
 
         {mensajeError && (
           <div className="aviso-error resultados__error" role="alert">

@@ -2,10 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { Ubicacion } from '../api/tipos';
 import { esElMismoLugar, urlDeMapaEmbebido, urlDeRecorridoEnGoogleMaps } from '../comun/formato';
 import { cargarGoogleMaps, hayClaveDeGoogleMaps, ID_DE_MAPA, type MarcadorDeGoogle } from '../comun/googleMaps';
+import { colorDelTema } from '../comun/tema';
 
-// Mismos colores que las marcas de la lista de salida y destino (estilos.css: .recorrido__marca)
-const COLOR_ORIGEN = '#1d6fb8';
-const COLOR_DESTINO = '#ef7d22';
 const ZOOM_DE_UN_LUGAR = 15;
 const RELLENO_ALREDEDOR_DE_LOS_PUNTOS = 48;
 
@@ -125,14 +123,18 @@ async function dibujarRecorrido(
     gestureHandling: 'cooperative',
   });
 
-  const pinDeDestino = new PinElement({ background: COLOR_DESTINO, borderColor: COLOR_DESTINO, glyphColor: '#fff' });
+  // Mismos colores que las marcas de la lista de salida y destino (estilos.css: .recorrido__marca)
+  const colorOrigen = colorDelTema('--color-primario');
+  const colorDestino = colorDelTema('--color-acento');
+  const colorSuperficie = colorDelTema('--color-superficie');
+  const pinDeDestino = new PinElement({ background: colorDestino, borderColor: colorDestino, glyphColor: colorSuperficie });
   const marcadores = [
     new AdvancedMarkerElement({ map: mapa, position: puntoDeDestino, title: destino.direccion, content: pinDeDestino.element }),
   ];
 
   if (!esElMismoLugar(origen, destino)) {
     const puntoDeOrigen = { lat: origen.lat, lng: origen.lng };
-    const pinDeOrigen = new PinElement({ background: '#fff', borderColor: COLOR_ORIGEN, glyphColor: COLOR_ORIGEN });
+    const pinDeOrigen = new PinElement({ background: colorSuperficie, borderColor: colorOrigen, glyphColor: colorOrigen });
     marcadores.push(
       new AdvancedMarkerElement({ map: mapa, position: puntoDeOrigen, title: origen.direccion, content: pinDeOrigen.element }),
     );

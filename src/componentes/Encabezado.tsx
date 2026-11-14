@@ -28,7 +28,7 @@ export function Encabezado() {
       </div>
       <div className="encabezado__derecha">
         {/* CU10 – Crear actividad */}
-        <Link to="/actividades/crear" className="boton boton--acento enlace-boton encabezado__crear">
+        <Link to="/actividades/crear" className="boton enlace-boton encabezado__crear">
           + Crear actividad
         </Link>
         <Link to="/perfil" className="encabezado__perfil" aria-label="Mi perfil" title="Mi perfil">

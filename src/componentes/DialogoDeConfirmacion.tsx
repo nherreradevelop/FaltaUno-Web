@@ -45,7 +45,7 @@ export function DialogoDeConfirmacion({
         <button type="button" className="boton-secundario" onClick={alCancelar}>
           {textoCancelar}
         </button>
-        <button type="button" className="boton-secundario boton-secundario--peligro" onClick={alConfirmar}>
+        <button type="button" className="boton boton--peligro" onClick={alConfirmar}>
           {textoConfirmar}
         </button>
       </div>

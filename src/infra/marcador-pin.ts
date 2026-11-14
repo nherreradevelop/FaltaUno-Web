@@ -25,7 +25,7 @@ export function crearMarcadorPin(
       boton.setAttribute('aria-label', 'Punto seleccionado. Arrastrá o usá las flechas para moverlo.');
       boton.title = 'Arrastrá el pin o usá las flechas para ajustar el punto';
       boton.innerHTML =
-        '<svg viewBox="0 0 32 44" aria-hidden="true"><path d="M16 1C7.7 1 1 7.7 1 16c0 11 15 27 15 27s15-16 15-27C31 7.7 24.3 1 16 1Z" fill="currentColor" stroke="white" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="white"/></svg>';
+        '<svg viewBox="0 0 32 44" aria-hidden="true"><path d="M16 1C7.7 1 1 7.7 1 16c0 11 15 27 15 27s15-16 15-27C31 7.7 24.3 1 16 1Z" fill="currentColor" style="stroke: var(--color-superficie)" stroke-width="2"/><circle cx="16" cy="16" r="6" style="fill: var(--color-superficie)"/></svg>';
       this.elemento = boton;
       this.eventos = new AbortController();
       const opciones = { signal: this.eventos.signal };
