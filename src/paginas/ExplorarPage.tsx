@@ -102,8 +102,6 @@ export function ExplorarPage() {
     return () => clearTimeout(temporizador);
   }, [filtros, filtrosAplicados, aplicar]);
 
-  const orden = ubicacion ? 'Ordenadas por fecha y cercanía' : 'Ordenadas por fecha';
-
   return (
     <main className="explorar">
       {filtros ? (
@@ -122,7 +120,6 @@ export function ExplorarPage() {
       <section className="explorar__contenido" aria-labelledby="titulo-explorar">
         <div className="explorar__titulo">
           <h1 id="titulo-explorar">Explorar actividades</h1>
-          {ubicacion !== undefined && <p className="texto-suave">{orden}</p>}
         </div>
 
         {aviso && (
@@ -139,8 +136,6 @@ export function ExplorarPage() {
             </button>
           </div>
         )}
-        <p className="texto-suave">Los filtros se aplican solo a las actividades que podrían interesarte.</p>
-
         {/* ER2 */}
         {opciones.fallaron.length > 0 && (
           <div className="aviso-error resultados__error" role="alert">
@@ -155,18 +150,33 @@ export function ExplorarPage() {
           <p className="texto-suave">Cargando actividades…</p>
         ) : (
           <>
-            <section className="resultados" aria-labelledby="titulo-gestionando">
-              <h2 id="titulo-gestionando">Actividades que estoy gestionando</h2>
-              <ResultadosDeBusqueda grupo="gestionando" filtros={FILTROS_INICIALES} ubicacion={ubicacion} />
-            </section>
-            <section className="resultados" aria-labelledby="titulo-unido">
-              <h2 id="titulo-unido">Actividades a las que estoy unido</h2>
-              <ResultadosDeBusqueda grupo="unido" filtros={FILTROS_INICIALES} ubicacion={ubicacion} />
-            </section>
-            <section className="resultados" aria-labelledby="titulo-otras">
-              <h2 id="titulo-otras">Actividades que podrían interesarte</h2>
-              {filtrosAplicados && <ResultadosDeBusqueda grupo="otras" filtros={filtrosAplicados} ubicacion={ubicacion} />}
-            </section>
+            {/* Las secciones propias solo se muestran si tienen actividades */}
+            <ResultadosDeBusqueda
+              grupo="gestionando"
+              titulo="Actividades que estás organizando"
+              filtros={FILTROS_INICIALES}
+              ubicacion={ubicacion}
+              ocultarSiNoHay
+            />
+            <ResultadosDeBusqueda
+              grupo="unido"
+              titulo="Actividades a las que te uniste"
+              filtros={FILTROS_INICIALES}
+              ubicacion={ubicacion}
+              ocultarSiNoHay
+            />
+            {filtrosAplicados ? (
+              <ResultadosDeBusqueda
+                grupo="otras"
+                titulo="Actividades que podrían interesarte"
+                filtros={filtrosAplicados}
+                ubicacion={ubicacion}
+              />
+            ) : (
+              <section className="resultados" aria-labelledby="titulo-otras">
+                <h2 id="titulo-otras">Actividades que podrían interesarte</h2>
+              </section>
+            )}
           </>
         )}
       </section>

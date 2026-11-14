@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router';
+import { almacenSesion } from '../sesion/almacenSesion';
 import { useSesion } from '../sesion/SesionContexto';
 
 /** Dirección a la que se quería entrar antes de pasar por el login (CU09 A3). */
@@ -7,12 +8,18 @@ interface EstadoConDestino {
   desde?: string;
 }
 
-/** Sin sesión, lleva al login recordando a dónde se quería entrar (CU09 A3, por ejemplo un enlace compartido). */
+/**
+ * Sin sesión, lleva al login recordando a dónde se quería entrar (CU09 A3, por ejemplo un enlace compartido).
+ * Si el usuario cerró la sesión (CU37), no se recuerda nada: al volver a entrar va a Explorar.
+ */
 export function RutaPrivada({ children }: { children: ReactNode }) {
   const { sesion } = useSesion();
   const location = useLocation();
   if (sesion) {
     return children;
+  }
+  if (almacenSesion.sesionCerradaPorElUsuario()) {
+    return <Navigate to="/login" replace />;
   }
   const destino: EstadoConDestino = { desde: location.pathname + location.search };
   return <Navigate to="/login" replace state={destino} />;

@@ -58,6 +58,8 @@ class AlmacenSesion {
   private motivo: MotivoDeCierre | null = null;
   /** CU37: se recuerda para el aviso que corresponde después de reintentar la limpieza (ER2 → ER1). */
   private cierreConfirmadoEnServidor = true;
+  /** CU37: después de que el usuario cerró sesión, el próximo login lleva a Explorar y no a la última pantalla. */
+  private cerroElUsuario = false;
 
   readonly cambios = new Observable<Sesion | null>((error) => console.error('Falló un observador de la sesión', error));
 
@@ -71,6 +73,7 @@ class AlmacenSesion {
 
   abrir(sesion: Sesion): void {
     this.motivo = null;
+    this.cerroElUsuario = false;
     this.reemplazar(conservarFiltrosDeSesion(this.sesion, sesion));
   }
 
@@ -91,8 +94,14 @@ class AlmacenSesion {
   cerrarPorVencimiento(): void {
     if (this.sesion !== null) {
       this.motivo = 'vencida';
+      this.cerroElUsuario = false;
       this.reemplazar(null);
     }
+  }
+
+  /** true si la última sesión la cerró el usuario (CU37), y no venció. */
+  sesionCerradaPorElUsuario(): boolean {
+    return this.cerroElUsuario;
   }
 
   /** Por qué se cerró la última sesión, o null si se cerró sin nada que avisar. */
@@ -106,6 +115,7 @@ class AlmacenSesion {
    */
   cerrarPorElUsuario(confirmadoEnServidor: boolean): void {
     this.cierreConfirmadoEnServidor = confirmadoEnServidor;
+    this.cerroElUsuario = true;
     const seBorro = borrarSesionGuardada();
     this.motivo = this.motivoDespuesDeLimpiar(seBorro);
     this.sesion = null;
