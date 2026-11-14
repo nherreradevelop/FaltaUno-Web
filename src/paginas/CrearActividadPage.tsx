@@ -274,6 +274,54 @@ export function CrearActividadPage() {
               )}
             </div>
             <section className="actividad-seccion">
+              <h2>Traslado</h2>
+              <label className="actividad-check">
+                <input
+                  type="checkbox"
+                  checked={formulario.tieneVehiculo}
+                  onChange={(e) => cambiar('tieneVehiculo', e.target.checked)}
+                />
+                Tengo vehículo propio
+              </label>
+              {formulario.tieneVehiculo && (
+                <Campo
+                  id="lugares"
+                  etiqueta="Personas que puedo llevar al destino (incluyéndome a mí mismo)"
+                  type="number"
+                  min={0}
+                  value={formulario.lugaresVehiculo}
+                  error={campos.lugaresVehiculo}
+                  onBlur={() => visitar('lugaresVehiculo')}
+                  onChange={(e) => cambiar('lugaresVehiculo', e.target.value)}
+                />
+              )}
+              <label className="actividad-check">
+                <input
+                  type="checkbox"
+                  checked={formulario.requiereVehiculo}
+                  onChange={(e) => cambiar('requiereVehiculo', e.target.checked)}
+                />
+                Buscando traslado
+              </label>
+              <Campo
+                id="costo"
+                etiqueta="Costo total estimado del traslado (opcional)"
+                inputMode="decimal"
+                placeholder="0,00"
+                value={formulario.costo}
+                error={campos.costoEstimadoCentavos}
+                onBlur={() => visitar('costo')}
+                onChange={(e) => cambiar('costo', e.target.value)}
+              />
+              {total !== null && (
+                <p>
+                  El total se divide entre los participantes. Con {cantidad} {cantidad === 1 ? 'persona' : 'personas'}:
+                  aproximadamente {mostrarImporte(Math.round(total / cantidad))} por persona. El importe cambia si se suman
+                  participantes.
+                </p>
+              )}
+            </section>
+            <section className="actividad-seccion">
               <h2>Recorrido</h2>
               {!opciones.mapasDisponibles && (
                 <p className="aviso-error" role="alert">
@@ -328,55 +376,7 @@ export function CrearActividadPage() {
               </aside>
             </section>
             <section className="actividad-seccion">
-              <h2>Traslado</h2>
-              <label className="actividad-check">
-                <input
-                  type="checkbox"
-                  checked={formulario.tieneVehiculo}
-                  onChange={(e) => cambiar('tieneVehiculo', e.target.checked)}
-                />
-                Tengo vehículo propio
-              </label>
-              {formulario.tieneVehiculo && (
-                <Campo
-                  id="lugares"
-                  etiqueta="Personas que puedo llevar al destino (incluyéndome a mí mismo)"
-                  type="number"
-                  min={0}
-                  value={formulario.lugaresVehiculo}
-                  error={campos.lugaresVehiculo}
-                  onBlur={() => visitar('lugaresVehiculo')}
-                  onChange={(e) => cambiar('lugaresVehiculo', e.target.value)}
-                />
-              )}
-              <label className="actividad-check">
-                <input
-                  type="checkbox"
-                  checked={formulario.requiereVehiculo}
-                  onChange={(e) => cambiar('requiereVehiculo', e.target.checked)}
-                />
-                Buscando traslado
-              </label>
-              <Campo
-                id="costo"
-                etiqueta="Costo total estimado del traslado (opcional)"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={formulario.costo}
-                error={campos.costoEstimadoCentavos}
-                onBlur={() => visitar('costo')}
-                onChange={(e) => cambiar('costo', e.target.value)}
-              />
-              {total !== null && (
-                <p>
-                  El total se divide entre los participantes. Con {cantidad} {cantidad === 1 ? 'persona' : 'personas'}:
-                  aproximadamente {mostrarImporte(Math.round(total / cantidad))} por persona. El importe cambia si se suman
-                  participantes.
-                </p>
-              )}
-            </section>
-            <section className="actividad-seccion">
-              <h2>Invitados externos</h2>
+              <h2>Participantes externos</h2>
               <p>
                 Vos también ocupás un lugar. Ocupados: {cantidad} de {formulario.cupoMaximo || '—'}.
               </p>
@@ -384,7 +384,7 @@ export function CrearActividadPage() {
                 <div className="actividad-invitado" key={indice}>
                   <Campo
                     id={`invitado-${indice}`}
-                    etiqueta={`Nombre del invitado ${indice + 1}`}
+                    etiqueta={`Nombre del participante externo ${indice + 1}`}
                     onBlur={() => visitar(`invitados.${indice}`)}
                     maxLength={100}
                     error={campos[`invitados.${indice}`]}
@@ -398,7 +398,7 @@ export function CrearActividadPage() {
                   />
                   <button
                     type="button"
-                    aria-label={`Quitar invitado ${indice + 1}`}
+                    aria-label={`Quitar participante externo ${indice + 1}`}
                     onClick={() =>
                       cambiar(
                         'invitados',
@@ -415,7 +415,7 @@ export function CrearActividadPage() {
                 disabled={cantidad >= Number(formulario.cupoMaximo)}
                 onClick={() => cambiar('invitados', [...formulario.invitados, ''])}
               >
-                Agregar invitado
+                Agregar participante externo
               </button>
               {campos.invitados && <p className="campo__error">{campos.invitados}</p>}
             </section>
