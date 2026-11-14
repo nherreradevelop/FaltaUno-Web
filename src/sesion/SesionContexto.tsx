@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { cerrarSesionEnServidor } from '../api/auth';
+import { ErrorApi } from '../api/cliente';
 import type { RespuestaLogin } from '../api/tipos';
 import { obtenerUsuarioActual } from '../api/usuarios';
 import { almacenSesion, type Sesion } from './almacenSesion';
@@ -6,6 +8,8 @@ import { almacenSesion, type Sesion } from './almacenSesion';
 interface ValorSesion {
   sesion: Sesion | null;
   abrirSesion: (respuesta: RespuestaLogin) => void;
+  /** CU37: cierra la sesión en el servidor y en el navegador. Nunca lanza: si algo falla, el login lo avisa (ER1, ER2). */
+  cerrarSesion: () => Promise<void>;
 }
 
 const SesionContexto = createContext<ValorSesion | null>(null);
@@ -36,7 +40,13 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     almacenSesion.abrir({ token: respuesta.token, usuario: respuesta.usuario });
   }, []);
 
-  const valor = useMemo(() => ({ sesion, abrirSesion }), [sesion, abrirSesion]);
+  const cerrarSesion = useCallback(async () => {
+    const confirmadoEnServidor = await invalidarEnServidor();
+    // Pendiente: CU07 – cerrar la conexión en tiempo real de la mensajería (FP paso 7), cuando exista
+    almacenSesion.cerrarPorElUsuario(confirmadoEnServidor);
+  }, []);
+
+  const valor = useMemo(() => ({ sesion, abrirSesion, cerrarSesion }), [sesion, abrirSesion, cerrarSesion]);
   return <SesionContexto.Provider value={valor}>{children}</SesionContexto.Provider>;
 }
 
@@ -46,4 +56,16 @@ export function useSesion(): ValorSesion {
     throw new Error('useSesion se usó fuera de <ProveedorSesion>');
   }
   return valor;
+}
+
+/** CU37 FP pasos 4 a 6. Devuelve false si la API no confirmó el cierre (ER1); el error se registra sin el token. */
+async function invalidarEnServidor(): Promise<boolean> {
+  try {
+    await cerrarSesionEnServidor();
+    return true;
+  } catch (error) {
+    const detalle = error instanceof ErrorApi ? { estado: error.estado, codigo: error.codigo } : { error: String(error) };
+    console.warn('CU37 ER1: no se pudo confirmar el cierre de sesión en el servidor', detalle);
+    return false;
+  }
 }

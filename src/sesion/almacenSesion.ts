@@ -8,12 +8,30 @@ export interface Sesion {
 
 const CLAVE_ALMACENAMIENTO = 'faltauno.sesion';
 
+/**
+ * Por qué se cerró la última sesión, para avisarlo en el login:
+ * - vencida: la API rechazó el token (CU08 ER3).
+ * - sinConfirmarEnServidor: el usuario cerró sesión pero la API no lo confirmó (CU37 ER1).
+ * - limpiezaIncompleta: no se pudo borrar la sesión guardada en el navegador (CU37 ER2).
+ */
+export type MotivoDeCierre = 'vencida' | 'sinConfirmarEnServidor' | 'limpiezaIncompleta';
+
 function leerSesionGuardada(): Sesion | null {
   try {
     const texto = localStorage.getItem(CLAVE_ALMACENAMIENTO);
     return texto ? (JSON.parse(texto) as Sesion) : null;
   } catch {
     return null; // almacenamiento bloqueado o dato corrupto: se arranca sin sesión
+  }
+}
+
+/** CU37 ER2: devuelve false si el navegador no permitió borrar la sesión guardada. */
+function borrarSesionGuardada(): boolean {
+  try {
+    localStorage.removeItem(CLAVE_ALMACENAMIENTO);
+    return localStorage.getItem(CLAVE_ALMACENAMIENTO) === null;
+  } catch {
+    return false;
   }
 }
 
@@ -35,8 +53,9 @@ function guardarSesion(sesion: Sesion | null): void {
  */
 class AlmacenSesion {
   private sesion: Sesion | null = leerSesionGuardada();
-  /** CU08 ER3 (y cualquier pantalla con sesión): la API rechazó el token, para avisar en el login que la sesión expiró. */
-  private vencida = false;
+  private motivo: MotivoDeCierre | null = null;
+  /** CU37: se recuerda para el aviso que corresponde después de reintentar la limpieza (ER2 → ER1). */
+  private cierreConfirmadoEnServidor = true;
 
   readonly cambios = new Observable<Sesion | null>((error) => console.error('Falló un observador de la sesión', error));
 
@@ -49,27 +68,50 @@ class AlmacenSesion {
   }
 
   abrir(sesion: Sesion): void {
-    this.vencida = false;
+    this.motivo = null;
     this.reemplazar(sesion);
   }
 
   /** La API respondió 401 con un token guardado: la sesión venció o se cerró desde otro lado. */
   cerrarPorVencimiento(): void {
     if (this.sesion !== null) {
-      this.vencida = true;
+      this.motivo = 'vencida';
       this.reemplazar(null);
     }
   }
 
-  /** true si la última sesión se cerró porque venció (no porque el usuario salió). */
-  sesionVencio(): boolean {
-    return this.vencida;
+  /** Por qué se cerró la última sesión, o null si se cerró sin nada que avisar. */
+  motivoDeCierre(): MotivoDeCierre | null {
+    return this.motivo;
   }
 
-  cerrar(): void {
-    if (this.sesion !== null) {
-      this.reemplazar(null);
+  /**
+   * CU37 FP pasos 7 y 8: borra la sesión del navegador y avisa a los observadores, que llevan al login.
+   * Aunque no se pueda borrar del almacenamiento, la sesión deja de usarse en esta pestaña (ER2: sin acceso a pantallas privadas).
+   */
+  cerrarPorElUsuario(confirmadoEnServidor: boolean): void {
+    this.cierreConfirmadoEnServidor = confirmadoEnServidor;
+    const seBorro = borrarSesionGuardada();
+    this.motivo = this.motivoDespuesDeLimpiar(seBorro);
+    this.sesion = null;
+    this.cambios.notificar(null);
+  }
+
+  /** CU37 ER2: vuelve a intentar borrar la sesión guardada. Devuelve true si ahora se pudo. */
+  reintentarLimpieza(): boolean {
+    const seBorro = borrarSesionGuardada();
+    this.motivo = this.motivoDespuesDeLimpiar(seBorro);
+    return seBorro;
+  }
+
+  private motivoDespuesDeLimpiar(seBorro: boolean): MotivoDeCierre | null {
+    if (!seBorro) {
+      return 'limpiezaIncompleta';
     }
+    if (!this.cierreConfirmadoEnServidor) {
+      return 'sinConfirmarEnServidor';
+    }
+    return null;
   }
 
   private reemplazar(sesion: Sesion | null): void {

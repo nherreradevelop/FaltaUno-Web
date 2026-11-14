@@ -4,9 +4,16 @@ import { ErrorApi } from '../api/cliente';
 import { Boton } from '../componentes/Boton';
 import { BotonGoogle, googleEstaConfigurado } from '../componentes/BotonGoogle';
 import { Campo } from '../componentes/Campo';
-import { almacenSesion } from '../sesion/almacenSesion';
+import { almacenSesion, type MotivoDeCierre } from '../sesion/almacenSesion';
 import { useSesion } from '../sesion/SesionContexto';
-import { MENSAJE_FALLA_GOOGLE, MENSAJE_SESION_VENCIDA, mensajeDeErrorDeGoogle, mensajeDeErrorDeLogin } from './mensajesLogin';
+import {
+  MENSAJE_CIERRE_SIN_CONFIRMAR,
+  MENSAJE_FALLA_GOOGLE,
+  MENSAJE_LIMPIEZA_INCOMPLETA,
+  MENSAJE_SESION_VENCIDA,
+  mensajeDeErrorDeGoogle,
+  mensajeDeErrorDeLogin,
+} from './mensajesLogin';
 
 interface ErroresDeCampos {
   email?: string;
@@ -21,6 +28,13 @@ function validarCamposVacios(email: string, password: string): ErroresDeCampos {
   return errores;
 }
 
+/** Aviso a mostrar al llegar al login según cómo se cerró la sesión anterior (CU08 ER3, CU37 ER1). */
+function avisoDeCierre(motivo: MotivoDeCierre | null): string | null {
+  if (motivo === 'vencida') return MENSAJE_SESION_VENCIDA;
+  if (motivo === 'sinConfirmarEnServidor') return MENSAJE_CIERRE_SIN_CONFIRMAR;
+  return null;
+}
+
 /**
  * W01 – CU01 Inicio de sesión.
  * Al abrir la sesión no se navega a mano: RutaSoloSinSesion detecta la sesión nueva y lleva a la pantalla principal.
@@ -30,11 +44,20 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erroresDeCampos, setErroresDeCampos] = useState<ErroresDeCampos>({});
-  // CU08 ER3: si se llegó acá porque la sesión venció, se avisa
-  const [mensajeError, setMensajeError] = useState<string | null>(() =>
-    almacenSesion.sesionVencio() ? MENSAJE_SESION_VENCIDA : null,
-  );
+  // CU08 ER3 y CU37 ER1: si se llegó acá porque la sesión venció o no se pudo confirmar su cierre, se avisa
+  const [mensajeError, setMensajeError] = useState<string | null>(() => avisoDeCierre(almacenSesion.motivoDeCierre()));
+  // CU37 ER2: la sesión anterior no se pudo borrar del navegador
+  const [limpiezaIncompleta, setLimpiezaIncompleta] = useState(() => almacenSesion.motivoDeCierre() === 'limpiezaIncompleta');
   const [enviando, setEnviando] = useState(false);
+
+  /** CU37 ER2: reintento manual de la limpieza (RNF-10). */
+  function reintentarLimpieza() {
+    const seBorro = almacenSesion.reintentarLimpieza();
+    setLimpiezaIncompleta(!seBorro);
+    if (seBorro) {
+      setMensajeError(avisoDeCierre(almacenSesion.motivoDeCierre()));
+    }
+  }
 
   async function alEnviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -147,6 +170,15 @@ export function LoginPage() {
             // Pendiente: CU03 – Recuperar contraseña
             accesorio={<span className="enlace-pendiente">¿Olvidaste tu contraseña?</span>}
           />
+
+          {limpiezaIncompleta && (
+            <div className="aviso-error login__aviso-con-accion" role="alert">
+              <span>{MENSAJE_LIMPIEZA_INCOMPLETA}</span>
+              <button type="button" className="boton-secundario boton-secundario--peligro" onClick={reintentarLimpieza}>
+                Reintentar
+              </button>
+            </div>
+          )}
 
           {mensajeError && (
             <p className="aviso-error" role="alert">

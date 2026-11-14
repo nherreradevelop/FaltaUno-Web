@@ -4,6 +4,7 @@ import type { Perfil } from '../api/tipos';
 import { obtenerMiPerfil, obtenerPerfilDeUsuario } from '../api/usuarios';
 import { formatearCantidadActividades, formatearCantidadValoraciones, formatearValoracion } from '../comun/formato';
 import { Avatar } from '../componentes/Avatar';
+import { BotonCerrarSesion } from '../componentes/BotonCerrarSesion';
 import { HistorialDeActividades } from '../componentes/HistorialDeActividades';
 import { useSesion } from '../sesion/SesionContexto';
 import { clasificarErrorDePerfil, type ResultadoDeError } from './mensajesPerfil';
@@ -104,11 +105,15 @@ function DatosDelPerfil({ perfil }: { perfil: Perfil }) {
         )}
       </div>
 
-      {/* CU04 RN2: "Editar perfil" solo en el perfil propio. Pendiente: CU05 – Editar perfil de usuario (A2) */}
+      {/* CU04 RN2: "Editar perfil" y "Cerrar sesión" solo en el perfil propio */}
       {perfil.esPropio && (
-        <button type="button" className="boton-secundario perfil__editar" disabled>
-          Editar perfil
-        </button>
+        <div className="perfil__acciones perfil__acciones--columna">
+          {/* Pendiente: CU05 – Editar perfil de usuario (A2) */}
+          <button type="button" className="boton-secundario perfil__editar" disabled>
+            Editar perfil
+          </button>
+          <BotonCerrarSesion />
+        </div>
       )}
 
       {/* Opciones desde el perfil de otro usuario. Pendiente: CU06 – Gestionar lista de amigos y CU07 – Mensajería entre dos usuarios */}
