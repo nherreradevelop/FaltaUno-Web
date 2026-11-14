@@ -1,52 +1,28 @@
-import { useEffect, useState } from 'react';
-import { buscarActividades } from '../api/actividades';
-import type { ActividadEncontrada, FiltrosDeBusqueda, UbicacionDelUsuario } from '../api/tipos';
-import { MENSAJE_SIN_ACTIVIDADES, mensajeDeErrorDeBusqueda } from '../paginas/mensajesExplorar';
+import { Link } from 'react-router';
+import { useActividadesPorGrupo } from '../comun/useActividadesPorGrupo';
+import type { FiltrosDeBusqueda, GrupoDeActividades, UbicacionDelUsuario } from '../api/tipos';
+import { MENSAJE_SIN_ACTIVIDADES } from '../paginas/mensajesExplorar';
 import { TarjetaActividad } from './TarjetaActividad';
 
 interface PropsResultados {
+  grupo: GrupoDeActividades;
   filtros: FiltrosDeBusqueda;
   ubicacion: UbicacionDelUsuario | null;
 }
 
 /**
- * CU08 FP paso 2: lista de actividades disponibles para los filtros, de a 10.
- * La página la monta con una key por filtros: al cambiar un filtro, la lista arranca de cero desde la página 1.
+ * CU08: una sección del dashboard, de a 10 actividades.
+ * El hook reinicia su paginación al cambiar filtros o ubicación.
  */
-export function ResultadosDeBusqueda({ filtros, ubicacion }: PropsResultados) {
-  const [actividades, setActividades] = useState<ActividadEncontrada[]>([]);
-  const [paginaCargada, setPaginaCargada] = useState(0);
-  const [paginaPedida, setPaginaPedida] = useState(1);
-  /** Se incrementa al tocar "Reintentar" para volver a pedir la misma página (RNF-10). */
-  const [intento, setIntento] = useState(0);
-  const [hayMas, setHayMas] = useState(false);
-  const [cargando, setCargando] = useState(true);
-  const [mensajeError, setMensajeError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Si cambian los filtros o se sale de la pantalla antes de que llegue la respuesta, se descarta
-    let vigente = true;
-    setCargando(true);
-    setMensajeError(null);
-
-    buscarActividades(filtros, paginaPedida, ubicacion)
-      .then((resultado) => {
-        if (!vigente) return;
-        setActividades((anteriores) => [...anteriores, ...resultado.actividades]);
-        setPaginaCargada(resultado.pagina);
-        setHayMas(resultado.hayMas);
-      })
-      .catch((error: unknown) => {
-        if (vigente) setMensajeError(mensajeDeErrorDeBusqueda(error)); // ER1 y ER4
-      })
-      .finally(() => {
-        if (vigente) setCargando(false);
-      });
-
-    return () => {
-      vigente = false;
-    };
-  }, [filtros, ubicacion, paginaPedida, intento]);
+export function ResultadosDeBusqueda({ grupo, filtros, ubicacion }: PropsResultados) {
+  const {
+    actividades,
+    hayMas,
+    cargando,
+    error: mensajeError,
+    reintentar,
+    verMas,
+  } = useActividadesPorGrupo(grupo, filtros, ubicacion);
 
   const sinActividades = !cargando && !mensajeError && actividades.length === 0;
 
@@ -55,11 +31,19 @@ export function ResultadosDeBusqueda({ filtros, ubicacion }: PropsResultados) {
       {/* E1 */}
       {sinActividades && (
         <div className="tarjeta resultados__vacio">
-          <p>{MENSAJE_SIN_ACTIVIDADES}</p>
-          {/* Pendiente: CU10 – Crear actividad */}
-          <button type="button" className="boton boton--acento" disabled>
-            + Crear actividad
-          </button>
+          <p>
+            {grupo === 'otras'
+              ? MENSAJE_SIN_ACTIVIDADES
+              : grupo === 'gestionando'
+                ? 'Todavía no estás gestionando actividades.'
+                : 'Todavía no estás unido a actividades.'}
+          </p>
+          {/* CU08 E1: se sugiere crear una (CU10) */}
+          {grupo === 'otras' && (
+            <Link to="/actividades/crear" className="boton boton--acento enlace-boton">
+              + Crear actividad
+            </Link>
+          )}
         </div>
       )}
 
@@ -78,14 +62,14 @@ export function ResultadosDeBusqueda({ filtros, ubicacion }: PropsResultados) {
       {mensajeError && (
         <div className="aviso-error resultados__error" role="alert">
           <span>{mensajeError}</span>
-          <button type="button" className="boton-secundario" onClick={() => setIntento((anterior) => anterior + 1)}>
+          <button type="button" className="boton-secundario" onClick={reintentar}>
             Reintentar
           </button>
         </div>
       )}
 
       {hayMas && !cargando && !mensajeError && (
-        <button type="button" className="boton-secundario" onClick={() => setPaginaPedida(paginaCargada + 1)}>
+        <button type="button" className="boton-secundario" onClick={verMas}>
           Ver más
         </button>
       )}
