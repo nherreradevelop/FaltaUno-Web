@@ -13,8 +13,14 @@ interface EstadoConDestino {
  * Si el usuario cerró la sesión (CU37), no se recuerda nada: al volver a entrar va a Explorar.
  */
 export function RutaPrivada({ children }: { children: ReactNode }) {
-  const { sesion } = useSesion();
+  const { sesion, cargando } = useSesion();
   const location = useLocation();
+  if (cargando)
+    return (
+      <main role="status" aria-label="Cargando sesión">
+        Cargando…
+      </main>
+    );
   if (sesion) {
     return children;
   }
@@ -30,8 +36,14 @@ export function RutaPrivada({ children }: { children: ReactNode }) {
  * Al iniciar sesión se vuelve a la dirección que se intentaba abrir (CU09 A3 paso 3) o a la pantalla principal.
  */
 export function RutaSoloSinSesion({ children }: { children: ReactNode }) {
-  const { sesion } = useSesion();
+  const { sesion, cargando } = useSesion();
   const location = useLocation();
+  if (cargando)
+    return (
+      <main role="status" aria-label="Cargando sesión">
+        Cargando…
+      </main>
+    );
   if (!sesion) {
     return children;
   }

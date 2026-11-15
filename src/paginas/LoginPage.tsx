@@ -40,7 +40,7 @@ function avisoDeCierre(motivo: MotivoDeCierre | null): string | null {
  * Al abrir la sesión no se navega a mano: RutaSoloSinSesion detecta la sesión nueva y lleva a la pantalla principal.
  */
 export function LoginPage() {
-  const { abrirSesion } = useSesion();
+  const { abrirSesion, cerrarSesion } = useSesion();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erroresDeCampos, setErroresDeCampos] = useState<ErroresDeCampos>({});
@@ -49,13 +49,19 @@ export function LoginPage() {
   // CU37 ER2: la sesión anterior no se pudo borrar del navegador
   const [limpiezaIncompleta, setLimpiezaIncompleta] = useState(() => almacenSesion.motivoDeCierre() === 'limpiezaIncompleta');
   const [enviando, setEnviando] = useState(false);
+  const [reintentandoCierre, setReintentandoCierre] = useState(false);
+  const [cierrePendiente, setCierrePendiente] = useState(() => almacenSesion.hayCierrePendiente());
 
   /** CU37 ER2: reintento manual de la limpieza (RNF-10). */
-  function reintentarLimpieza() {
-    const seBorro = almacenSesion.reintentarLimpieza();
-    setLimpiezaIncompleta(!seBorro);
-    if (seBorro) {
+  async function reintentarLimpieza() {
+    setReintentandoCierre(true);
+    try {
+      await cerrarSesion();
+      setLimpiezaIncompleta(almacenSesion.motivoDeCierre() === 'limpiezaIncompleta');
       setMensajeError(avisoDeCierre(almacenSesion.motivoDeCierre()));
+      setCierrePendiente(almacenSesion.hayCierrePendiente());
+    } finally {
+      setReintentandoCierre(false);
     }
   }
 
@@ -71,7 +77,7 @@ export function LoginPage() {
 
     setEnviando(true);
     try {
-      abrirSesion(await iniciarSesion(email, password));
+      await abrirSesion(await iniciarSesion(email, password));
     } catch (error) {
       if (error instanceof ErrorApi && error.campos) {
         setErroresDeCampos(error.campos);
@@ -89,7 +95,7 @@ export function LoginPage() {
     setMensajeError(null);
     setEnviando(true);
     try {
-      abrirSesion(await iniciarSesionConGoogle(idToken));
+      await abrirSesion(await iniciarSesionConGoogle(idToken));
     } catch (error) {
       // Pendiente: CU02 A3 – en E2 (CUENTA_NO_ENCONTRADA), ofrecer registrarse con la misma cuenta de Google
       setMensajeError(mensajeDeErrorDeGoogle(error));
@@ -187,7 +193,12 @@ export function LoginPage() {
           {limpiezaIncompleta && (
             <div className="aviso-error login__aviso-con-accion" role="alert">
               <span>{MENSAJE_LIMPIEZA_INCOMPLETA}</span>
-              <button type="button" className="boton-secundario boton-secundario--peligro" onClick={reintentarLimpieza}>
+              <button
+                type="button"
+                className="boton-secundario boton-secundario--peligro"
+                onClick={reintentarLimpieza}
+                disabled={reintentandoCierre || enviando}
+              >
                 Reintentar
               </button>
             </div>
@@ -199,7 +210,19 @@ export function LoginPage() {
             </p>
           )}
 
-          <Boton type="submit" cargando={enviando} textoCargando="Ingresando…">
+          {cierrePendiente && !limpiezaIncompleta && (
+            <button
+              type="button"
+              className="boton-secundario"
+              onClick={reintentarLimpieza}
+              disabled={reintentandoCierre || enviando}
+              aria-busy={reintentandoCierre}
+            >
+              {reintentandoCierre ? 'Reintentando…' : 'Reintentar cierre'}
+            </button>
+          )}
+
+          <Boton type="submit" cargando={enviando} disabled={reintentandoCierre} textoCargando="Ingresando…">
             Iniciar sesión
           </Boton>
 

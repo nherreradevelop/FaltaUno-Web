@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import { registerHooks } from 'node:module';
+import { crearNavegador } from './soporteAlmacenamiento.mjs';
 import { FILTROS_INICIALES, sonFiltrosValidos } from '../src/comun/filtrosDeSesion.ts';
 
-const datos = new Map();
+const navegador = crearNavegador();
+const datos = navegador.local;
 globalThis.__datosSesionPrueba = datos;
 globalThis.localStorage = {
   getItem: (clave) => datos.get(clave) ?? null,
@@ -35,7 +37,7 @@ const filtros = { ...FILTROS_INICIALES, deportes: [1, 3], departamentos: ['Rocha
 
 afterEach(async () => {
   almacenSesion.cerrarPorElUsuario(true);
-  datos.clear();
+  navegador.limpiar();
 });
 
 describe('CU08 dashboard: filtros durante la sesión', () => {

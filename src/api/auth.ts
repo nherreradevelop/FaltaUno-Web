@@ -15,6 +15,6 @@ export function iniciarSesionConGoogle(idToken: string): Promise<RespuestaLogin>
 const TIEMPO_ESPERA_CIERRE_MS = 5_000;
 
 /** CU37 FP pasos 4 a 6: invalida en el servidor la sesión actual. La API responde 204 aunque ya no estuviera activa (E1). */
-export function cerrarSesionEnServidor(): Promise<void> {
-  return pedir<void>('/api/auth/cerrar-sesion', { metodo: 'POST', tiempoDeEsperaMs: TIEMPO_ESPERA_CIERRE_MS });
+export function cerrarSesionEnServidor(tokenDeSesion: string): Promise<void> {
+  return pedir<void>('/api/auth/cerrar-sesion', { metodo: 'POST', tiempoDeEsperaMs: TIEMPO_ESPERA_CIERRE_MS, tokenDeSesion });
 }
