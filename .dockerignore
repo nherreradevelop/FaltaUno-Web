@@ -1,0 +1,15 @@
+# Nunca entran al build los .env (aunque las VITE_* son públicas, se pasan como argumentos)
+**/node_modules
+dist
+coverage
+.env
+.env.*
+.git
+.github
+.husky
+.vscode
+.vs
+docs
+*.md
+Dockerfile
+docker-compose*.yml

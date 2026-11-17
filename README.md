@@ -36,6 +36,21 @@ npm run preview   # sirve lo que quedó en dist/
 
 En `.env`, `VITE_GOOGLE_CLIENT_ID` es el Client ID de OAuth de tipo "Aplicación web". Si queda vacío, no se muestra el botón de Google.
 
+## Ejecutar con Docker
+
+Necesita la API levantada en http://localhost:3000 (en `FaltaUno-API`: `docker compose up -d`). Las variables salen del `.env` de esta carpeta.
+
+```bash
+docker compose up -d --build     # http://localhost:5173
+docker compose watch             # recarga en caliente: copia los cambios de src/ al contenedor
+```
+
+**Producción / demo:** compila la web y la sirve con nginx en el mismo puerto (5173), así siguen valiendo los orígenes configurados en la API y en Google. Las `VITE_*` se incorporan al compilar: después de cambiarlas hay que volver a construir.
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.produccion.yml up -d --build
+```
+
 ## Dashboard y filtros
 
 El dashboard muestra primero las actividades que gestionás, luego las que integrás y finalmente «Actividades que podrían interesarte». Cada sección tiene su propia paginación; las actividades propias siguen visibles aunque estén completas.
