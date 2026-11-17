@@ -1,0 +1,17 @@
+# FaltaUno - web en modo producción: archivos compilados servidos con nginx.
+# Se publica en el mismo puerto que en desarrollo (5173), así siguen valiendo los orígenes
+# configurados en la API (CORS_ORIGENES) y en Google (OAuth y restricción de la key de Maps).
+#   docker compose -f docker-compose.yml -f docker-compose.produccion.yml up -d --build
+services:
+  web:
+    build:
+      target: produccion
+      args:
+        VITE_URL_API: ${VITE_URL_API:-http://localhost:3000}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-}
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
+        VITE_GOOGLE_MAPS_MAP_ID: ${VITE_GOOGLE_MAPS_MAP_ID:-}
+    image: faltauno-web:produccion
+    ports: !override
+      - '5173:80'
+    develop: !reset null
