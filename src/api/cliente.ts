@@ -42,9 +42,15 @@ async function leerError(respuesta: Response): Promise<ErrorApi> {
  */
 export async function pedir<T>(
   ruta: string,
-  opciones: { metodo?: string; cuerpo?: unknown; claveIdempotencia?: string } = {},
+  opciones: {
+    metodo?: string;
+    cuerpo?: unknown;
+    claveIdempotencia?: string;
+    tiempoDeEsperaMs?: number;
+    tokenDeSesion?: string;
+  } = {},
 ): Promise<T> {
-  const token = almacenSesion.token();
+  const token = opciones.tokenDeSesion ?? almacenSesion.token();
   const encabezados: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) {
     encabezados.Authorization = `Bearer ${token}`;
@@ -60,7 +66,7 @@ export async function pedir<T>(
       method: opciones.metodo ?? 'GET',
       headers: encabezados,
       body: opciones.cuerpo === undefined ? undefined : JSON.stringify(opciones.cuerpo),
-      signal: AbortSignal.timeout(TIEMPO_ESPERA_MS),
+      signal: AbortSignal.timeout(opciones.tiempoDeEsperaMs ?? TIEMPO_ESPERA_MS),
     });
   } catch {
     throw new ErrorApi(0, 'SIN_CONEXION', MENSAJE_SIN_CONEXION);
@@ -68,7 +74,7 @@ export async function pedir<T>(
 
   if (!respuesta.ok) {
     // La sesión venció o se cerró desde otro lado: se cierra la local, el router lleva al login y ahí se avisa (CU08 ER3)
-    if (respuesta.status === 401 && token) {
+    if (respuesta.status === 401 && token && almacenSesion.token() === token) {
       almacenSesion.cerrarPorVencimiento();
     }
     throw await leerError(respuesta);

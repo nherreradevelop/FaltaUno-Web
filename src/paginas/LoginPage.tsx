@@ -4,9 +4,16 @@ import { ErrorApi } from '../api/cliente';
 import { Boton } from '../componentes/Boton';
 import { BotonGoogle, googleEstaConfigurado } from '../componentes/BotonGoogle';
 import { Campo } from '../componentes/Campo';
-import { almacenSesion } from '../sesion/almacenSesion';
+import { almacenSesion, type MotivoDeCierre } from '../sesion/almacenSesion';
 import { useSesion } from '../sesion/SesionContexto';
-import { MENSAJE_FALLA_GOOGLE, MENSAJE_SESION_VENCIDA, mensajeDeErrorDeGoogle, mensajeDeErrorDeLogin } from './mensajesLogin';
+import {
+  MENSAJE_CIERRE_SIN_CONFIRMAR,
+  MENSAJE_FALLA_GOOGLE,
+  MENSAJE_LIMPIEZA_INCOMPLETA,
+  MENSAJE_SESION_VENCIDA,
+  mensajeDeErrorDeGoogle,
+  mensajeDeErrorDeLogin,
+} from './mensajesLogin';
 
 interface ErroresDeCampos {
   email?: string;
@@ -21,20 +28,42 @@ function validarCamposVacios(email: string, password: string): ErroresDeCampos {
   return errores;
 }
 
+/** Aviso a mostrar al llegar al login según cómo se cerró la sesión anterior (CU08 ER3, CU37 ER1). */
+function avisoDeCierre(motivo: MotivoDeCierre | null): string | null {
+  if (motivo === 'vencida') return MENSAJE_SESION_VENCIDA;
+  if (motivo === 'sinConfirmarEnServidor') return MENSAJE_CIERRE_SIN_CONFIRMAR;
+  return null;
+}
+
 /**
  * W01 – CU01 Inicio de sesión.
  * Al abrir la sesión no se navega a mano: RutaSoloSinSesion detecta la sesión nueva y lleva a la pantalla principal.
  */
 export function LoginPage() {
-  const { abrirSesion } = useSesion();
+  const { abrirSesion, cerrarSesion } = useSesion();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erroresDeCampos, setErroresDeCampos] = useState<ErroresDeCampos>({});
-  // CU08 ER3: si se llegó acá porque la sesión venció, se avisa
-  const [mensajeError, setMensajeError] = useState<string | null>(() =>
-    almacenSesion.sesionVencio() ? MENSAJE_SESION_VENCIDA : null,
-  );
+  // CU08 ER3 y CU37 ER1: si se llegó acá porque la sesión venció o no se pudo confirmar su cierre, se avisa
+  const [mensajeError, setMensajeError] = useState<string | null>(() => avisoDeCierre(almacenSesion.motivoDeCierre()));
+  // CU37 ER2: la sesión anterior no se pudo borrar del navegador
+  const [limpiezaIncompleta, setLimpiezaIncompleta] = useState(() => almacenSesion.motivoDeCierre() === 'limpiezaIncompleta');
   const [enviando, setEnviando] = useState(false);
+  const [reintentandoCierre, setReintentandoCierre] = useState(false);
+  const [cierrePendiente, setCierrePendiente] = useState(() => almacenSesion.hayCierrePendiente());
+
+  /** CU37 ER2: reintento manual de la limpieza (RNF-10). */
+  async function reintentarLimpieza() {
+    setReintentandoCierre(true);
+    try {
+      await cerrarSesion();
+      setLimpiezaIncompleta(almacenSesion.motivoDeCierre() === 'limpiezaIncompleta');
+      setMensajeError(avisoDeCierre(almacenSesion.motivoDeCierre()));
+      setCierrePendiente(almacenSesion.hayCierrePendiente());
+    } finally {
+      setReintentandoCierre(false);
+    }
+  }
 
   async function alEnviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -48,7 +77,7 @@ export function LoginPage() {
 
     setEnviando(true);
     try {
-      abrirSesion(await iniciarSesion(email, password));
+      await abrirSesion(await iniciarSesion(email, password));
     } catch (error) {
       if (error instanceof ErrorApi && error.campos) {
         setErroresDeCampos(error.campos);
@@ -66,7 +95,7 @@ export function LoginPage() {
     setMensajeError(null);
     setEnviando(true);
     try {
-      abrirSesion(await iniciarSesionConGoogle(idToken));
+      await abrirSesion(await iniciarSesionConGoogle(idToken));
     } catch (error) {
       // Pendiente: CU02 A3 – en E2 (CUENTA_NO_ENCONTRADA), ofrecer registrarse con la misma cuenta de Google
       setMensajeError(mensajeDeErrorDeGoogle(error));
@@ -79,9 +108,22 @@ export function LoginPage() {
     <main className="login">
       <section className="login__portada">
         <svg className="login__ola" aria-hidden="true" viewBox="0 0 720 300" preserveAspectRatio="none">
-          <path d="M0 150 C 140 80, 280 230, 430 150 S 640 70, 720 120 L 720 300 L 0 300 Z" fill="#1D6FB8" />
-          <path d="M0 220 C 160 170, 320 280, 480 210 S 660 170, 720 190 L 720 300 L 0 300 Z" fill="#5AA4DC" opacity="0.5" />
-          <path d="M470 205 C 540 175, 610 185, 670 240" stroke="#EF7D22" strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path
+            d="M0 150 C 140 80, 280 230, 430 150 S 640 70, 720 120 L 720 300 L 0 300 Z"
+            style={{ fill: 'var(--color-primario)' }}
+          />
+          <path
+            d="M0 220 C 160 170, 320 280, 480 210 S 660 170, 720 190 L 720 300 L 0 300 Z"
+            style={{ fill: 'var(--color-primario-medio)' }}
+            opacity="0.5"
+          />
+          <path
+            d="M470 205 C 540 175, 610 185, 670 240"
+            style={{ stroke: 'var(--color-acento)' }}
+            strokeWidth="8"
+            fill="none"
+            strokeLinecap="round"
+          />
         </svg>
         <div className="login__marca">
           <span className="login__logo">
@@ -148,13 +190,39 @@ export function LoginPage() {
             accesorio={<span className="enlace-pendiente">¿Olvidaste tu contraseña?</span>}
           />
 
+          {limpiezaIncompleta && (
+            <div className="aviso-error login__aviso-con-accion" role="alert">
+              <span>{MENSAJE_LIMPIEZA_INCOMPLETA}</span>
+              <button
+                type="button"
+                className="boton-secundario boton-secundario--peligro"
+                onClick={reintentarLimpieza}
+                disabled={reintentandoCierre || enviando}
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+
           {mensajeError && (
             <p className="aviso-error" role="alert">
               {mensajeError}
             </p>
           )}
 
-          <Boton type="submit" cargando={enviando} textoCargando="Ingresando…">
+          {cierrePendiente && !limpiezaIncompleta && (
+            <button
+              type="button"
+              className="boton-secundario"
+              onClick={reintentarLimpieza}
+              disabled={reintentandoCierre || enviando}
+              aria-busy={reintentandoCierre}
+            >
+              {reintentandoCierre ? 'Reintentando…' : 'Reintentar cierre'}
+            </button>
+          )}
+
+          <Boton type="submit" cargando={enviando} disabled={reintentandoCierre} textoCargando="Ingresando…">
             Iniciar sesión
           </Boton>
 

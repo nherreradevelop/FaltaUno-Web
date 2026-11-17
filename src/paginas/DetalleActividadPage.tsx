@@ -12,6 +12,7 @@ import {
   proporcionOcupada,
 } from '../comun/formato';
 import { Avatar } from '../componentes/Avatar';
+import { LimiteDeError } from '../componentes/LimiteDeError';
 import { IconoCompartir, IconoMasOpciones, IconoSilenciar, IconoTilde } from '../componentes/Iconos';
 import { MapaDelRecorrido } from '../componentes/MapaDelRecorrido';
 import { ParticipantesDeActividad, useParticipantes, type EstadoParticipantes } from '../componentes/ParticipantesDeActividad';
@@ -40,7 +41,24 @@ type EstadoPantalla = { tipo: 'cargando' } | { tipo: 'listo'; actividad: Detalle
 export function DetalleActividadPage() {
   const { id = '' } = useParams();
   // key: al pasar de una actividad a otra, la pantalla arranca de cero
-  return <PantallaDetalle key={id} actividadId={id} />;
+  return (
+    <LimiteDeError
+      key={id}
+      alternativa={(reintentar) => (
+        <main className="actividad">
+          <BotonVolver />
+          <div className="aviso-error actividad__error" role="alert">
+            <span>No fue posible cargar el detalle de la actividad. Probá de nuevo más tarde.</span>
+            <button type="button" className="boton-secundario" onClick={reintentar}>
+              Reintentar
+            </button>
+          </div>
+        </main>
+      )}
+    >
+      <PantallaDetalle actividadId={id} />
+    </LimiteDeError>
+  );
 }
 
 function PantallaDetalle({ actividadId }: { actividadId: string }) {

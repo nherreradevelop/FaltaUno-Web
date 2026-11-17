@@ -10,17 +10,54 @@
   font-weight: 200 800;
 }
 
+/*
+ * Paleta única de la web, por roles (lineamientos FaltaUno, "Colores y botones").
+ * Ningún color se escribe a mano fuera de este bloque. Un color nuevo entra por PR, en web y mobile a la vez.
+ */
 :root {
+  /* Neutros */
   --color-fondo: #f3f6f2;
+  --color-superficie: #ffffff; /* tarjetas, inputs, menús */
+  --color-superficie-sutil: #e6ebe8; /* esqueletos de carga */
+  --color-superficie-translucida: rgba(255, 255, 255, 0.45);
+  --color-borde: #c9d3cf;
   --color-texto: #0f2537;
   --color-texto-suave: #4a5d6b;
-  --color-borde: #c9d3cf;
+  /* Marca (azul) */
   --color-primario: #1d6fb8;
-  --color-primario-oscuro: #13507f;
-  --color-primario-claro: #d6e8f5;
+  --color-primario-oscuro: #13507f; /* primarioFuerte: hover y texto sobre primario-claro */
+  --color-primario-claro: #d6e8f5; /* primarioSuave */
+  --color-primario-medio: #5aa4dc; /* solo ilustraciones */
+  --color-sobre-primario: #ffffff; /* texto e íconos sobre primario, error y avatares */
+  --color-sobre-primario-velo: rgba(255, 255, 255, 0.14); /* etiquetas sobre la portada azul del login */
+  /* Acento (naranja): solo detalles sin texto encima, nunca en botones */
   --color-acento: #ef7d22;
+  --color-acento-fuerte: #d9661a;
+  --color-acento-suave: #fdebd9;
+  --color-acento-texto: #8a4210; /* texto sobre acento-suave */
+  /* Estados */
+  --color-exito: #2d5a2d;
+  --color-exito-suave: #e3efe3;
+  --color-advertencia: #9a4a0c;
+  --color-advertencia-suave: #fdf0e3;
   --color-error: #b3261e;
-  --color-error-fondo: #fdecea;
+  --color-error-fondo: #fdecea; /* errorSuave */
+  /* Avatares con iniciales (siempre con texto sobre-primario) */
+  --color-avatar-1: #b45309;
+  --color-avatar-2: #1d6fb8;
+  --color-avatar-3: #2e7d4f;
+  --color-avatar-4: #6d4aa3;
+  --color-avatar-5: #0f766e;
+  --color-avatar-6: #13507f;
+  /* Terceros: atribución de Google Maps (color pedido por Google) */
+  --color-atribucion-google: #5e5e5e;
+  /* Capas */
+  --color-velo: rgba(15, 37, 55, 0.45);
+  --sombra-elevada: 0 12px 40px rgba(15, 37, 55, 0.25);
+  --sombra-suave: 0 2px 6px rgba(15, 37, 55, 0.18);
+  --sombra-pin: rgba(0, 0, 0, 0.33);
+  --opacidad-deshabilitado: 0.6;
+
   --fuente-texto: 'Figtree', sans-serif;
   --fuente-titulos: 'Bricolage Grotesque', sans-serif;
 }
@@ -72,7 +109,7 @@ h2 {
   padding: 0 14px;
   font-size: 16px;
   font-family: var(--fuente-texto);
-  background: #fff;
+  background: var(--color-superficie);
   color: var(--color-texto);
 }
 .campo input:focus {
@@ -93,7 +130,7 @@ h2 {
   border: none;
   border-radius: 25px;
   background: var(--color-primario);
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-family: var(--fuente-texto);
   font-weight: 700;
   font-size: 16px;
@@ -103,8 +140,20 @@ h2 {
   background: var(--color-primario-oscuro);
 }
 .boton:disabled {
-  opacity: 0.6;
+  opacity: var(--opacidad-deshabilitado);
   cursor: wait;
+}
+/* Peligro principal: solo para confirmar una acción destructiva dentro de un diálogo */
+.boton--peligro,
+.boton--peligro:hover:not(:disabled) {
+  background: var(--color-error);
+}
+/* Foco visible en todo control con forma de botón */
+.boton:focus-visible,
+.boton-secundario:focus-visible,
+.boton-enlace:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
 }
 
 .aviso-error {
@@ -146,7 +195,7 @@ h2 {
   position: relative;
   overflow: hidden;
   background: var(--color-primario-oscuro);
-  color: #fff;
+  color: var(--color-sobre-primario);
   padding: 4rem 4.5rem;
   display: flex;
   flex-direction: column;
@@ -174,7 +223,7 @@ h2 {
   width: 64px;
   height: 64px;
   border-radius: 20px;
-  background: #fff;
+  background: var(--color-superficie);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,7 +262,7 @@ h2 {
 .login__etiquetas li {
   padding: 8px 14px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--color-sobre-primario-velo);
   font-weight: 600;
 }
 .login__panel {
@@ -284,7 +333,7 @@ h2 {
   align-items: center;
   justify-content: space-between;
   padding: 14px 2rem;
-  background: #fff;
+  background: var(--color-superficie);
   border-bottom: 1px solid var(--color-borde);
 }
 .encabezado__marca {
@@ -322,14 +371,14 @@ h2 {
 }
 .avatar--iniciales {
   background: var(--color-acento);
-  color: #fff;
+  color: var(--color-sobre-primario);
   font-weight: 700;
 }
 
 .tarjeta {
   margin: 0;
   padding: 1.5rem;
-  background: #fff;
+  background: var(--color-superficie);
   border: 1px solid var(--color-borde);
   border-radius: 20px;
 }
@@ -347,19 +396,19 @@ h2 {
   font-weight: 600;
 }
 .etiqueta--archivada {
-  background: #e3efe3;
-  color: #2d5a2d;
+  background: var(--color-exito-suave);
+  color: var(--color-exito);
 }
 .etiqueta--programada {
-  background: #e3efe3;
-  color: #2d5a2d;
+  background: var(--color-exito-suave);
+  color: var(--color-exito);
 }
 .etiqueta--iniciada {
-  background: #fdf0e3;
-  color: #9a4a0c;
+  background: var(--color-advertencia-suave);
+  color: var(--color-advertencia);
 }
 .etiqueta--neutra {
-  background: #fff;
+  background: var(--color-superficie);
   color: var(--color-texto);
   border: 1px solid var(--color-borde);
 }
@@ -372,7 +421,7 @@ h2 {
   padding: 0 20px;
   border: 1px solid var(--color-primario);
   border-radius: 22px;
-  background: #fff;
+  background: var(--color-superficie);
   color: var(--color-primario);
   font-family: var(--fuente-texto);
   font-weight: 700;
@@ -391,8 +440,43 @@ h2 {
   background: var(--color-error-fondo);
 }
 .boton-secundario:disabled {
-  opacity: 0.5;
+  opacity: var(--opacidad-deshabilitado);
   cursor: not-allowed;
+}
+
+/* --- Diálogo de confirmación (CU37) --- */
+.dialogo {
+  max-width: 24rem;
+  padding: 24px;
+  border: none;
+  border-radius: 20px;
+  color: var(--color-texto);
+  box-shadow: var(--sombra-elevada);
+}
+.dialogo::backdrop {
+  background: var(--color-velo);
+}
+.dialogo__titulo {
+  margin: 0 0 20px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.dialogo__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.dialogo__acciones .boton {
+  height: 44px;
+  padding: 0 20px;
+}
+
+/* --- CU37 Cierre de sesión: aviso con "Reintentar" en el login (ER2) --- */
+.login__aviso-con-accion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* --- CU04 Perfil --- */
@@ -423,6 +507,10 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+.perfil__acciones--columna {
+  flex-direction: column;
+  align-items: stretch;
 }
 .perfil__resumen {
   margin: 0;
@@ -598,7 +686,7 @@ h2 {
   align-items: center;
   gap: 4px;
   background: var(--color-primario);
-  color: #fff;
+  color: var(--color-sobre-primario);
 }
 .actividad__dato-titulo {
   font-size: 13px;
@@ -624,7 +712,7 @@ h2 {
 }
 .actividad__nivel-recomendado {
   font-weight: 700;
-  color: #2d5a2d;
+  color: var(--color-exito);
 }
 .actividad__pie-pronostico {
   font-size: 13px;
@@ -675,7 +763,7 @@ h2 {
 }
 .recorrido__marca--origen {
   border: 2px solid var(--color-primario);
-  background: #fff;
+  background: var(--color-superficie);
 }
 .recorrido__marca--destino {
   background: var(--color-acento);
@@ -759,7 +847,7 @@ h2 {
   width: 40px;
   height: 40px;
   border: 1px dashed var(--color-borde);
-  background: #fff;
+  background: var(--color-superficie);
   color: var(--color-texto-suave);
   font-weight: 700;
   font-size: 18px;
@@ -816,10 +904,10 @@ h2 {
   z-index: 10;
   min-width: 15rem;
   padding: 6px;
-  background: #fff;
+  background: var(--color-superficie);
   border: 1px solid var(--color-borde);
   border-radius: 14px;
-  box-shadow: 0 12px 32px rgba(15, 37, 55, 0.18);
+  box-shadow: var(--sombra-elevada);
   display: flex;
   flex-direction: column;
 }
@@ -835,7 +923,7 @@ h2 {
   color: var(--color-texto);
 }
 .menu-opciones__item:disabled {
-  opacity: 0.6;
+  opacity: var(--opacidad-deshabilitado);
   cursor: not-allowed;
 }
 .menu-opciones__item--peligro {
@@ -896,7 +984,7 @@ h2 {
   line-height: 1;
 }
 .estrellas__estrella:disabled {
-  opacity: 0.6;
+  opacity: var(--opacidad-deshabilitado);
   cursor: not-allowed;
 }
 
@@ -988,7 +1076,12 @@ h2 {
 }
 .esqueleto__bloque {
   border-radius: 14px;
-  background: linear-gradient(90deg, #e6ebe8 25%, #f0f3f1 50%, #e6ebe8 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-superficie-sutil) 25%,
+    var(--color-fondo) 50%,
+    var(--color-superficie-sutil) 75%
+  );
   background-size: 200% 100%;
   animation: esqueleto-brillo 1.4s ease-in-out infinite;
 }
@@ -1050,25 +1143,25 @@ h2 {
   height: 44px;
 }
 
-.boton--acento {
-  background: var(--color-acento);
-  padding: 0 22px;
-}
 .boton:disabled:not([aria-busy='true']) {
   cursor: not-allowed;
 }
+/* Un enlace con forma de botón: toma el color de la variante (.boton o .boton-secundario) */
 .enlace-boton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0 22px;
   text-decoration: none;
 }
-.enlace-boton,
-.enlace-boton:hover {
-  color: #fff;
+/* La regla global "a:hover" cambia el color del texto: un enlace-botón mantiene el de su variante */
+.boton.enlace-boton,
+.boton.enlace-boton:hover {
+  color: var(--color-sobre-primario);
 }
-.boton--acento.enlace-boton:hover {
-  background: #d9661a;
+.boton-secundario.enlace-boton,
+.boton-secundario.enlace-boton:hover {
+  color: var(--color-primario);
 }
 .boton-enlace {
   padding: 0;
@@ -1169,7 +1262,7 @@ h2 {
   font-family: var(--fuente-texto);
   font-size: 15px;
   color: var(--color-texto);
-  background: #fff;
+  background: var(--color-superficie);
 }
 .filtros__fecha input[aria-invalid='true'] {
   border-color: var(--color-error);
@@ -1184,7 +1277,7 @@ h2 {
   padding: 0 14px;
   border: 1px solid var(--color-borde);
   border-radius: 18px;
-  background: #fff;
+  background: var(--color-superficie);
   color: var(--color-texto);
   font-family: var(--fuente-texto);
   font-size: 14px;
@@ -1281,8 +1374,8 @@ h2 {
   text-decoration: none;
 }
 .etiqueta--organizador {
-  background: #fdebd9;
-  color: #8a4210;
+  background: var(--color-acento-suave);
+  color: var(--color-acento-texto);
 }
 .dato {
   padding: 4px 10px;
@@ -1329,7 +1422,7 @@ h2 {
   height: 44px;
   border-radius: 50%;
   font-size: 28px;
-  background: white;
+  background: var(--color-superficie);
   border: 1px solid var(--color-borde);
 }
 .crear-actividad form,
@@ -1356,7 +1449,7 @@ h2 {
   border-radius: 14px;
   font: inherit;
   color: var(--color-texto);
-  background: white;
+  background: var(--color-superficie);
 }
 .crear-actividad textarea:focus,
 .crear-actividad select:focus,
@@ -1370,7 +1463,7 @@ h2 {
 }
 .crear-actividad button:disabled {
   cursor: default;
-  opacity: 0.6;
+  opacity: var(--opacidad-deshabilitado);
 }
 .actividad-niveles {
   display: flex;
@@ -1382,7 +1475,7 @@ h2 {
   padding: 12px;
   border: 1px solid var(--color-borde);
   border-radius: 14px;
-  background: white;
+  background: var(--color-superficie);
   text-transform: capitalize;
   color: var(--color-texto);
 }
@@ -1397,7 +1490,7 @@ h2 {
   padding: 20px;
   border: 1px solid var(--color-borde);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--color-superficie-translucida);
 }
 .actividad-seccion h2 {
   font-size: 22px;
@@ -1437,7 +1530,7 @@ h2 {
 .actividad-invitado button,
 .actividad-seccion > button {
   padding: 12px 18px;
-  background: white;
+  background: var(--color-superficie);
   border: 1px solid var(--color-borde);
   border-radius: 14px;
 }
@@ -1473,7 +1566,7 @@ h2 {
   padding: 12px;
   border: 0;
   border-bottom: 1px solid var(--color-borde);
-  background: white;
+  background: var(--color-superficie);
   color: var(--color-texto);
 }
 .ubicacion__lista button:hover {
@@ -1481,7 +1574,7 @@ h2 {
 }
 .google-maps {
   font: normal 400 12px var(--fuente-texto);
-  color: #5e5e5e;
+  color: var(--color-atribucion-google);
   white-space: nowrap;
 }
 .actividad-confirmada {
@@ -1490,14 +1583,14 @@ h2 {
   padding: 28px;
   border: 1px solid var(--color-borde);
   border-radius: 22px;
-  background: white;
+  background: var(--color-superficie);
 }
 .actividad-confirmada p {
   margin: 0;
   line-height: 1.5;
 }
 .actividad-etiqueta {
-  color: #1e6042;
+  color: var(--color-exito);
   font-weight: 700;
 }
 .actividad-id {
@@ -1531,7 +1624,7 @@ h2 {
   border: 1px solid var(--color-primario);
   border-radius: 8px;
   color: var(--color-primario);
-  background: white;
+  background: var(--color-superficie);
   cursor: pointer;
 }
 .mapa-ubicacion {
@@ -1560,17 +1653,17 @@ h2 {
   border: 1px solid var(--color-primario);
   border-radius: 8px;
   padding: 10px 12px;
-  background: white;
+  background: var(--color-superficie);
   color: var(--color-primario);
   cursor: pointer;
 }
 .mapa-ubicacion__acciones button:disabled {
-  opacity: 0.5;
+  opacity: var(--opacidad-deshabilitado);
   cursor: default;
 }
 .mapa-ubicacion__acciones button:nth-child(2) {
   background: var(--color-primario);
-  color: white;
+  color: var(--color-sobre-primario);
 }
 .mapa-ubicacion__coordenadas {
   font-variant-numeric: tabular-nums;
@@ -1596,7 +1689,7 @@ h2 {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  filter: drop-shadow(0 2px 2px #0005);
+  filter: drop-shadow(0 2px 2px var(--sombra-pin));
 }
 .mapa-ubicacion__pin:active {
   cursor: grabbing;
@@ -1619,11 +1712,11 @@ h2 {
   border: 1px solid var(--color-borde);
   border-radius: 8px;
   color: var(--color-texto);
-  background: white;
-  box-shadow: 0 2px 6px #0002;
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
   cursor: pointer;
 }
 .mapa-ubicacion__mi-ubicacion:disabled {
-  opacity: 0.65;
+  opacity: var(--opacidad-deshabilitado);
   cursor: default;
 }

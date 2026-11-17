@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import { registerHooks } from 'node:module';
+import { crearNavegador } from './soporteAlmacenamiento.mjs';
 import { FILTROS_INICIALES, sonFiltrosValidos } from '../src/comun/filtrosDeSesion.ts';
 
-const datos = new Map();
+const navegador = crearNavegador();
+const datos = navegador.local;
 globalThis.__datosSesionPrueba = datos;
 globalThis.localStorage = {
   getItem: (clave) => datos.get(clave) ?? null,
@@ -34,8 +36,8 @@ const sesion = { token: 'token-prueba-1', usuario };
 const filtros = { ...FILTROS_INICIALES, deportes: [1, 3], departamentos: ['Rocha'], desde: '2026-12-01', hasta: '2026-12-20' };
 
 afterEach(async () => {
-  await almacenSesion.cerrar();
-  datos.clear();
+  almacenSesion.cerrarPorElUsuario(true);
+  navegador.limpiar();
 });
 
 describe('CU08 dashboard: filtros durante la sesión', () => {
@@ -67,7 +69,7 @@ describe('CU08 dashboard: filtros durante la sesión', () => {
   it('cerrar sesión durante un guardado no restaura datos en el almacenamiento', async () => {
     await almacenSesion.abrir(sesion);
     const guardado = almacenSesion.guardarFiltrosDeBusqueda(sesion.token, filtros);
-    const cierre = almacenSesion.cerrar();
+    const cierre = Promise.resolve(almacenSesion.cerrarPorElUsuario(true));
     await Promise.all([guardado, cierre]);
     assert.equal(almacenSesion.actual(), null);
     assert.equal(datos.get('faltauno.sesion'), undefined);

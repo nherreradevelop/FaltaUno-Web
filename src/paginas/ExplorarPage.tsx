@@ -7,7 +7,9 @@ import { FILTROS_INICIALES } from '../comun/filtrosDeSesion';
 import { useFiltrosDeSesion } from '../sesion/useFiltrosDeSesion';
 import { obtenerUbicacion } from '../comun/ubicacion';
 import { FiltrosDeActividades, type ErroresDeFiltros } from '../componentes/FiltrosDeActividades';
+import { EsqueletoDeActividades } from '../componentes/EsqueletoDeActividades';
 import { ResultadosDeBusqueda } from '../componentes/ResultadosDeBusqueda';
+import { terminoLaPrimeraCarga, useActividadesPorGrupo, type ResultadoDeGrupo } from '../comun/useActividadesPorGrupo';
 import { mensajeFallaDeFiltros } from './mensajesExplorar';
 
 // Espera tras el último cambio de filtro antes de buscar, para no pedir una lista por cada tecla del campo numérico
@@ -102,8 +104,6 @@ export function ExplorarPage() {
     return () => clearTimeout(temporizador);
   }, [filtros, filtrosAplicados, aplicar]);
 
-  const orden = ubicacion ? 'Ordenadas por fecha y cercanía' : 'Ordenadas por fecha';
-
   return (
     <main className="explorar">
       {filtros ? (
@@ -122,7 +122,6 @@ export function ExplorarPage() {
       <section className="explorar__contenido" aria-labelledby="titulo-explorar">
         <div className="explorar__titulo">
           <h1 id="titulo-explorar">Explorar actividades</h1>
-          {ubicacion !== undefined && <p className="texto-suave">{orden}</p>}
         </div>
 
         {aviso && (
@@ -139,8 +138,6 @@ export function ExplorarPage() {
             </button>
           </div>
         )}
-        <p className="texto-suave">Los filtros se aplican solo a las actividades que podrían interesarte.</p>
-
         {/* ER2 */}
         {opciones.fallaron.length > 0 && (
           <div className="aviso-error resultados__error" role="alert">
@@ -152,24 +149,47 @@ export function ExplorarPage() {
         )}
 
         {ubicacion === undefined ? (
-          <p className="texto-suave">Cargando actividades…</p>
+          <EsqueletoDeActividades />
         ) : (
-          <>
-            <section className="resultados" aria-labelledby="titulo-gestionando">
-              <h2 id="titulo-gestionando">Actividades que estoy gestionando</h2>
-              <ResultadosDeBusqueda grupo="gestionando" filtros={FILTROS_INICIALES} ubicacion={ubicacion} />
-            </section>
-            <section className="resultados" aria-labelledby="titulo-unido">
-              <h2 id="titulo-unido">Actividades a las que estoy unido</h2>
-              <ResultadosDeBusqueda grupo="unido" filtros={FILTROS_INICIALES} ubicacion={ubicacion} />
-            </section>
-            <section className="resultados" aria-labelledby="titulo-otras">
-              <h2 id="titulo-otras">Actividades que podrían interesarte</h2>
-              {filtrosAplicados && <ResultadosDeBusqueda grupo="otras" filtros={filtrosAplicados} ubicacion={ubicacion} />}
-            </section>
-          </>
+          <SeccionesDelDashboard filtrosAplicados={filtrosAplicados} ubicacion={ubicacion} />
         )}
       </section>
     </main>
+  );
+}
+
+/** Una sección propia (organizando, unido) solo se muestra si tiene actividades, o un error para reintentar. */
+function tieneQueMostrarse(resultado: ResultadoDeGrupo): boolean {
+  return resultado.actividades.length > 0 || resultado.error !== null;
+}
+
+/**
+ * CU08: las tres secciones del dashboard. Hasta que respondan las dos propias se muestra un esqueleto,
+ * así no aparecen después y empujan hacia abajo la lista que el usuario ya estaba mirando.
+ */
+function SeccionesDelDashboard({
+  filtrosAplicados,
+  ubicacion,
+}: {
+  filtrosAplicados: FiltrosDeBusqueda | null;
+  ubicacion: UbicacionDelUsuario | null;
+}) {
+  const organizando = useActividadesPorGrupo('gestionando', FILTROS_INICIALES, ubicacion);
+  const unido = useActividadesPorGrupo('unido', FILTROS_INICIALES, ubicacion);
+  const otras = useActividadesPorGrupo('otras', filtrosAplicados, ubicacion);
+
+  const propiasListas = terminoLaPrimeraCarga(organizando) && terminoLaPrimeraCarga(unido);
+  if (!propiasListas) {
+    return <EsqueletoDeActividades cantidad={3} />;
+  }
+
+  return (
+    <>
+      {tieneQueMostrarse(organizando) && (
+        <ResultadosDeBusqueda id="organizando" titulo="Actividades que estás organizando" resultado={organizando} />
+      )}
+      {tieneQueMostrarse(unido) && <ResultadosDeBusqueda id="unido" titulo="Actividades a las que te uniste" resultado={unido} />}
+      <ResultadosDeBusqueda id="otras" titulo="Actividades que podrían interesarte" resultado={otras} sugerirCrear />
+    </>
   );
 }
