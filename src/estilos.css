@@ -1577,27 +1577,6 @@ h2 {
   color: var(--color-atribucion-google);
   white-space: nowrap;
 }
-.actividad-confirmada {
-  display: grid;
-  gap: 16px;
-  padding: 28px;
-  border: 1px solid var(--color-borde);
-  border-radius: 22px;
-  background: var(--color-superficie);
-}
-.actividad-confirmada p {
-  margin: 0;
-  line-height: 1.5;
-}
-.actividad-etiqueta {
-  color: var(--color-exito);
-  font-weight: 700;
-}
-.actividad-id {
-  font-size: 13px;
-  overflow-wrap: anywhere;
-  color: var(--color-texto-suave);
-}
 .sr-only {
   position: absolute;
   width: 1px;
