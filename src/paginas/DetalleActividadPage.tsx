@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { obtenerDetalleDeActividad } from '../api/actividades';
 import type { DetalleActividad } from '../api/tipos';
 import {
@@ -31,6 +31,11 @@ import {
   type PestanaDeActividad,
 } from './mensajesActividad';
 import { ETIQUETA_ESTADO } from './mensajesPerfil';
+
+/** Estado de navegación con el que CU10 abre esta pantalla al terminar el alta. */
+export interface EstadoDeActividadCreada {
+  actividadCreada: { destinoProvisional: boolean };
+}
 
 type EstadoPantalla = { tipo: 'cargando' } | { tipo: 'listo'; actividad: DetalleActividad } | ErrorDeActividad;
 
@@ -92,6 +97,7 @@ function PantallaDetalle({ actividadId }: { actividadId: string }) {
   return (
     <main className="actividad">
       <BotonVolver />
+      <AvisoDeActividadCreada />
       {estado.tipo === 'cargando' && <EsqueletoDeCarga />}
 
       {estado.tipo === 'falla' && (
@@ -105,6 +111,25 @@ function PantallaDetalle({ actividadId }: { actividadId: string }) {
 
       {estado.tipo === 'listo' && <DetalleDeLaActividad actividad={estado.actividad} />}
     </main>
+  );
+}
+
+/** CU10 FP paso 11: confirma el alta cuando se llega desde la creación de la actividad. */
+function AvisoDeActividadCreada() {
+  const location = useLocation();
+  const actividadCreada = (location.state as EstadoDeActividadCreada | null)?.actividadCreada;
+  if (!actividadCreada) return null;
+  return (
+    <>
+      <p className="aviso-info" role="status">
+        ¡Actividad creada! Ya estás registrado como organizador y participante.
+      </p>
+      {actividadCreada.destinoProvisional && (
+        <p className="aviso-error" role="status">
+          Usamos una ubicación por defecto como destino. Como organizador, tenés que editarla más adelante.
+        </p>
+      )}
+    </>
   );
 }
 

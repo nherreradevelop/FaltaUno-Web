@@ -1,21 +1,19 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, useBlocker, useNavigate } from 'react-router';
-import {
-  crearActividad,
-  opcionesActividad,
-  type ActividadCreada,
-  type DatosCrearActividad,
-  type OpcionesActividad,
-} from '../api/actividades';
+import { useBlocker, useNavigate } from 'react-router';
+import { crearActividad, opcionesActividad, type DatosCrearActividad, type OpcionesActividad } from '../api/actividades';
 import { ErrorApi } from '../api/cliente';
 import { Campo } from '../componentes/Campo';
 import { Boton } from '../componentes/Boton';
 import { SelectorUbicacion } from '../componentes/SelectorUbicacion';
 import { aCentavos, mostrarImporte, nuevaClave, resultadoIncierto } from '../comun/formularioActividad';
+import type { EstadoDeActividadCreada } from './DetalleActividadPage';
 import { useSesion } from '../sesion/SesionContexto';
 import { useFormularioActividad } from '../hooks/useFormularioActividad';
 
-/** CU10: alta con cancelación confirmada, corrección de campos y reintento de la misma intención. */
+/**
+ * CU10: alta con cancelación confirmada, corrección de campos y reintento de la misma intención.
+ * Al confirmarse el alta se abre el detalle de la actividad creada (CU10 FP paso 11 → CU09).
+ */
 export function CrearActividadPage() {
   const navegar = useNavigate();
   const { sesion } = useSesion();
@@ -27,14 +25,16 @@ export function CrearActividadPage() {
   );
   const [enviando, setEnviando] = useState(false);
   const [pendiente, setPendiente] = useState(false);
-  const [creada, setCreada] = useState<ActividadCreada | null>(null);
+  // Ref y no estado: la navegación al detalle ocurre antes del próximo render y el bloqueador tiene que dejarla pasar
+  const altaConfirmada = useRef(false);
   const intento = useRef<{ datos: DatosCrearActividad; clave: string } | null>(null);
   const envioEnCurso = useRef(false);
   const resumenErrores = useRef<HTMLDivElement>(null);
   const [recarga, setRecarga] = useState(0);
   const sinMapas = useCallback(() => setOpciones((actual) => (actual ? { ...actual, mapasDisponibles: false } : actual)), []);
   const bloqueador = useBlocker(
-    ({ currentLocation, nextLocation }) => !creada && sesion !== null && currentLocation.pathname !== nextLocation.pathname,
+    ({ currentLocation, nextLocation }) =>
+      !altaConfirmada.current && sesion !== null && currentLocation.pathname !== nextLocation.pathname,
   );
   useEffect(() => {
     if (bloqueador.state !== 'blocked') return;
@@ -61,13 +61,13 @@ export function CrearActividadPage() {
     };
   }, [recarga]);
   useEffect(() => {
-    if (creada || !sesion) return;
+    if (!sesion) return;
     const avisar = (evento: BeforeUnloadEvent) => {
       evento.preventDefault();
     };
     window.addEventListener('beforeunload', avisar);
     return () => window.removeEventListener('beforeunload', avisar);
-  }, [creada, sesion]);
+  }, [sesion]);
 
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
@@ -79,9 +79,10 @@ export function CrearActividadPage() {
       envioEnCurso.current = true;
       setEnviando(true);
       const resultado = await crearActividad(intento.current.datos, intento.current.clave);
-      setCreada(resultado);
-      setPendiente(false);
-      intento.current = null;
+      altaConfirmada.current = true;
+      const estadoDelDetalle: EstadoDeActividadCreada = { actividadCreada: { destinoProvisional: resultado.destinoProvisional } };
+      // replace: con "Volver" desde el detalle no se regresa a un formulario ya enviado
+      navegar(`/actividades/${resultado.id}`, { replace: true, state: estadoDelDetalle });
     } catch (fallo) {
       const incierto = fallo instanceof ErrorApi && resultadoIncierto(fallo);
       setPendiente(incierto);
@@ -113,33 +114,6 @@ export function CrearActividadPage() {
     /* El error se explica al confirmar el formulario. */
   }
   const cantidad = 1 + formulario.invitados.length;
-  if (creada)
-    return (
-      <main className="crear-actividad">
-        <section className="actividad-confirmada" role="status">
-          <span className="actividad-etiqueta">Programada</span>
-          <h1>¡Actividad creada!</h1>
-          <h2>{creada.nombre}</h2>
-          {creada.destinoProvisional && (
-            <p className="aviso-error" role="status">
-              Usamos una ubicación por defecto como destino. Como organizador, tenés que editarla más adelante.
-            </p>
-          )}
-          <p>Ya estás registrado como organizador y participante.</p>
-          <p>
-            {creada.cantidadParticipantes} participantes · {creada.cuposDisponibles} lugares disponibles
-          </p>
-          {creada.costoPorPersonaCentavos !== null && (
-            <p>
-              Costo total: {mostrarImporte(creada.costoEstimadoCentavos!)} · Aproximado por participante actual:{' '}
-              {mostrarImporte(creada.costoPorPersonaCentavos)}
-            </p>
-          )}
-          <p className="actividad-id">Identificador: {creada.id}</p>
-          <Link to="/">Volver al inicio</Link>
-        </section>
-      </main>
-    );
   return (
     <main className="crear-actividad">
       <header className="crear-actividad__encabezado">
