@@ -181,7 +181,7 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
               </button>
               {notificacion.leida ? (
                 // Mantiene el ancho de la columna para que los textos queden alineados
-                <span className="notificacion__marcar-leida notificacion__marcar-leida--vacio" aria-hidden="true" />
+                <span className="notificacion__espacio-accion" aria-hidden="true" />
               ) : (
                 <button
                   type="button"

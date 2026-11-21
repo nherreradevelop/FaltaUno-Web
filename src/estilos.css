@@ -500,9 +500,9 @@ h2 {
   line-height: 1;
   cursor: pointer;
 }
-.notificacion__marcar-leida--vacio {
-  display: block;
-  cursor: default;
+.notificacion__espacio-accion {
+  flex-shrink: 0;
+  width: 44px;
 }
 .notificacion__marcar-leida:hover:not(:disabled) {
   color: var(--color-primario);
