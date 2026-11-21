@@ -1,6 +1,7 @@
 import { almacenSesion } from '../sesion/almacenSesion';
 
-const URL_API = import.meta.env.VITE_URL_API;
+/** También la usa el canal en tiempo real (api/tiempoReal.ts). */
+export const URL_API = import.meta.env.VITE_URL_API;
 
 // RNF-08: si la API no responde en este tiempo, se corta la espera y se informa el error
 const TIEMPO_ESPERA_MS = 15_000;
