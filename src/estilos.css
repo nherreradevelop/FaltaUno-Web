@@ -487,8 +487,8 @@ h2 {
 .notificacion__texto {
   line-height: 1.4;
 }
-/* A5: cruz para descartar; área de 44x44 aunque el símbolo sea chico */
-.notificacion__descartar {
+/* A5: tilde para marcar una como leída sin abrirla; área de 44x44 aunque el símbolo sea chico */
+.notificacion__marcar-leida {
   flex-shrink: 0;
   width: 44px;
   height: 44px;
@@ -496,19 +496,23 @@ h2 {
   border-radius: 50%;
   background: transparent;
   color: var(--color-texto-suave);
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
 }
-.notificacion__descartar:hover:not(:disabled) {
-  color: var(--color-texto);
+.notificacion__marcar-leida--vacio {
+  display: block;
+  cursor: default;
+}
+.notificacion__marcar-leida:hover:not(:disabled) {
+  color: var(--color-primario);
   background: var(--color-superficie-sutil);
 }
-.notificacion__descartar:focus-visible {
+.notificacion__marcar-leida:focus-visible {
   outline: 2px solid var(--color-primario);
   outline-offset: -2px;
 }
-.notificacion__descartar:disabled {
+.notificacion__marcar-leida:disabled {
   opacity: var(--opacidad-deshabilitado);
   cursor: wait;
 }

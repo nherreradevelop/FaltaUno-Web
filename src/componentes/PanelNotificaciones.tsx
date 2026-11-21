@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
-  descartarNotificacion,
   listarNotificaciones,
   marcarNotificacionLeida,
   marcarTodasLasNotificacionesLeidas,
@@ -10,8 +9,8 @@ import {
 import {
   agregarAlPrincipio,
   haceCuanto,
+  marcarLeidaEnLaLista,
   MENSAJES_NOTIFICACIONES,
-  quitarDeLaLista,
   rutaDeDestino,
 } from '../notificaciones/notificaciones';
 import { useNotificaciones } from '../notificaciones/ProveedorNotificaciones';
@@ -24,14 +23,15 @@ type Carga = 'inicial' | 'mas' | null;
  */
 export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
   const navegar = useNavigate();
-  const { noLeidas, actualizarNoLeidas, nuevas, descartadas, refrescarNoLeidas } = useNotificaciones();
+  const { noLeidas, actualizarNoLeidas, nuevas, refrescarNoLeidas } = useNotificaciones();
   const [lista, setLista] = useState<Notificacion[]>([]);
   const [hayMas, setHayMas] = useState(false);
   const [carga, setCarga] = useState<Carga>('inicial');
   const [error, setError] = useState<string | null>(null);
   const [marcandoTodas, setMarcandoTodas] = useState(false);
   const [intento, setIntento] = useState(0);
-  const [descartando, setDescartando] = useState<string | null>(null);
+  // A5: id de la notificación que se está marcando como leída sin abrirla
+  const [marcandoUna, setMarcandoUna] = useState<string | null>(null);
 
   // FP paso 3: primera página. "intento" la vuelve a pedir con "Reintentar" (ER1).
   useEffect(() => {
@@ -60,12 +60,6 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
     // Solo al abrir: refrescarNoLeidas cambia en cada render del proveedor
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // A5: si se descarta en otro dispositivo, también se quita de esta lista
-  useEffect(() => {
-    const desuscribir = descartadas.suscribir((id) => setLista((anterior) => quitarDeLaLista(anterior, id)));
-    return desuscribir;
-  }, [descartadas]);
 
   // A3: con el panel abierto, las nuevas se agregan arriba sin mover lo que el usuario está mirando
   useEffect(() => {
@@ -101,7 +95,7 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
     if (!notificacion.leida) {
       try {
         actualizarNoLeidas(await marcarNotificacionLeida(notificacion.id));
-        setLista((anterior) => anterior.map((n) => (n.id === notificacion.id ? { ...n, leida: true } : n)));
+        setLista((anterior) => marcarLeidaEnLaLista(anterior, notificacion.id));
       } catch {
         // ER2: igual se lleva al usuario a la pantalla; el indicador queda con lo que confirmó la API
       }
@@ -113,18 +107,18 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
     }
   }
 
-  /** A5: descarta una notificación; se quita de la lista cuando la API lo confirma. */
-  async function descartar(notificacion: Notificacion) {
-    if (descartando) return;
-    setDescartando(notificacion.id);
+  /** A5: marca una como leída sin abrirla; el usuario se queda en el panel. */
+  async function marcarComoLeida(notificacion: Notificacion) {
+    if (marcandoUna) return;
+    setMarcandoUna(notificacion.id);
     setError(null);
     try {
-      actualizarNoLeidas(await descartarNotificacion(notificacion.id));
-      setLista((anterior) => quitarDeLaLista(anterior, notificacion.id));
+      actualizarNoLeidas(await marcarNotificacionLeida(notificacion.id));
+      setLista((anterior) => marcarLeidaEnLaLista(anterior, notificacion.id));
     } catch {
-      setError(MENSAJES_NOTIFICACIONES.errorAlDescartar);
+      setError(MENSAJES_NOTIFICACIONES.errorAlMarcarUna); // ER2: queda sin leer
     } finally {
-      setDescartando(null);
+      setMarcandoUna(null);
     }
   }
 
@@ -136,7 +130,7 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
       actualizarNoLeidas(await marcarTodasLasNotificacionesLeidas(hasta));
       setLista((anterior) => anterior.map((n) => (new Date(n.creadaEn) <= hasta ? { ...n, leida: true } : n)));
     } catch {
-      setError('No pudimos marcar las notificaciones como leídas.'); // ER2
+      setError(MENSAJES_NOTIFICACIONES.errorAlMarcarTodas); // ER2
     } finally {
       setMarcandoTodas(false);
     }
@@ -185,17 +179,22 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
                   {haceCuanto(notificacion.creadaEn)}
                 </time>
               </button>
-              <button
-                type="button"
-                className="notificacion__descartar"
-                aria-label={`Descartar notificación: ${notificacion.texto}`}
-                title="Descartar"
-                onClick={() => void descartar(notificacion)}
-                disabled={descartando !== null}
-                aria-busy={descartando === notificacion.id}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
+              {notificacion.leida ? (
+                // Mantiene el ancho de la columna para que los textos queden alineados
+                <span className="notificacion__marcar-leida notificacion__marcar-leida--vacio" aria-hidden="true" />
+              ) : (
+                <button
+                  type="button"
+                  className="notificacion__marcar-leida"
+                  aria-label={`Marcar como leída: ${notificacion.texto}`}
+                  title="Marcar como leída"
+                  onClick={() => void marcarComoLeida(notificacion)}
+                  disabled={marcandoUna !== null}
+                  aria-busy={marcandoUna === notificacion.id}
+                >
+                  <span aria-hidden="true">✓</span>
+                </button>
+              )}
             </li>
           ))}
         </ul>
