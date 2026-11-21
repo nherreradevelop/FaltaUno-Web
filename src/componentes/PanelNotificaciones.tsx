@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
+  descartarNotificacion,
   listarNotificaciones,
   marcarNotificacionLeida,
   marcarTodasLasNotificacionesLeidas,
   type Notificacion,
 } from '../api/notificaciones';
-import { agregarAlPrincipio, haceCuanto, MENSAJES_NOTIFICACIONES, rutaDeDestino } from '../notificaciones/notificaciones';
+import {
+  agregarAlPrincipio,
+  haceCuanto,
+  MENSAJES_NOTIFICACIONES,
+  quitarDeLaLista,
+  rutaDeDestino,
+} from '../notificaciones/notificaciones';
 import { useNotificaciones } from '../notificaciones/ProveedorNotificaciones';
 
 type Carga = 'inicial' | 'mas' | null;
@@ -17,13 +24,14 @@ type Carga = 'inicial' | 'mas' | null;
  */
 export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
   const navegar = useNavigate();
-  const { noLeidas, actualizarNoLeidas, nuevas } = useNotificaciones();
+  const { noLeidas, actualizarNoLeidas, nuevas, descartadas, refrescarNoLeidas } = useNotificaciones();
   const [lista, setLista] = useState<Notificacion[]>([]);
   const [hayMas, setHayMas] = useState(false);
   const [carga, setCarga] = useState<Carga>('inicial');
   const [error, setError] = useState<string | null>(null);
   const [marcandoTodas, setMarcandoTodas] = useState(false);
   const [intento, setIntento] = useState(0);
+  const [descartando, setDescartando] = useState<string | null>(null);
 
   // FP paso 3: primera página. "intento" la vuelve a pedir con "Reintentar" (ER1).
   useEffect(() => {
@@ -45,6 +53,19 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
       vigente = false;
     };
   }, [intento]);
+
+  // Al abrir el panel se actualiza también el indicador, por si cambió mientras estaba cerrado
+  useEffect(() => {
+    refrescarNoLeidas();
+    // Solo al abrir: refrescarNoLeidas cambia en cada render del proveedor
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // A5: si se descarta en otro dispositivo, también se quita de esta lista
+  useEffect(() => {
+    const desuscribir = descartadas.suscribir((id) => setLista((anterior) => quitarDeLaLista(anterior, id)));
+    return desuscribir;
+  }, [descartadas]);
 
   // A3: con el panel abierto, las nuevas se agregan arriba sin mover lo que el usuario está mirando
   useEffect(() => {
@@ -89,6 +110,21 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
     if (ruta) {
       alCerrar();
       navegar(ruta); // E2: la pantalla de destino muestra el estado actual (por ejemplo, actividad cancelada)
+    }
+  }
+
+  /** A5: descarta una notificación; se quita de la lista cuando la API lo confirma. */
+  async function descartar(notificacion: Notificacion) {
+    if (descartando) return;
+    setDescartando(notificacion.id);
+    setError(null);
+    try {
+      actualizarNoLeidas(await descartarNotificacion(notificacion.id));
+      setLista((anterior) => quitarDeLaLista(anterior, notificacion.id));
+    } catch {
+      setError(MENSAJES_NOTIFICACIONES.errorAlDescartar);
+    } finally {
+      setDescartando(null);
     }
   }
 
@@ -138,12 +174,8 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
       {lista.length > 0 && (
         <ul className="notificaciones__lista">
           {lista.map((notificacion) => (
-            <li key={notificacion.id}>
-              <button
-                type="button"
-                className={`notificacion${notificacion.leida ? '' : ' notificacion--no-leida'}`}
-                onClick={() => void abrir(notificacion)}
-              >
+            <li key={notificacion.id} className={`notificacion-fila${notificacion.leida ? '' : ' notificacion-fila--no-leida'}`}>
+              <button type="button" className="notificacion" onClick={() => void abrir(notificacion)}>
                 <span className="notificacion__punto" aria-hidden="true" />
                 <span className="notificacion__texto">
                   {!notificacion.leida && <span className="sr-only">Sin leer: </span>}
@@ -152,6 +184,17 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
                 <time className="notificacion__tiempo" dateTime={notificacion.creadaEn}>
                   {haceCuanto(notificacion.creadaEn)}
                 </time>
+              </button>
+              <button
+                type="button"
+                className="notificacion__descartar"
+                aria-label={`Descartar notificación: ${notificacion.texto}`}
+                title="Descartar"
+                onClick={() => void descartar(notificacion)}
+                disabled={descartando !== null}
+                aria-busy={descartando === notificacion.id}
+              >
+                <span aria-hidden="true">×</span>
               </button>
             </li>
           ))}

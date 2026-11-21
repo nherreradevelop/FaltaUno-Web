@@ -438,7 +438,20 @@ h2 {
   padding: 0;
   list-style: none;
 }
+.notificacion-fila {
+  display: flex;
+  align-items: flex-start;
+  border-radius: 12px;
+}
+.notificacion-fila:hover {
+  background: var(--color-fondo);
+}
+.notificacion-fila--no-leida,
+.notificacion-fila--no-leida:hover {
+  background: var(--color-primario-claro);
+}
 .notificacion {
+  flex: 1;
   display: grid;
   grid-template-columns: 10px 1fr;
   gap: 4px 10px;
@@ -453,17 +466,11 @@ h2 {
   text-align: left;
   cursor: pointer;
 }
-.notificacion:hover {
-  background: var(--color-fondo);
-}
 .notificacion:focus-visible {
   outline: 2px solid var(--color-primario);
   outline-offset: -2px;
 }
-.notificacion--no-leida {
-  background: var(--color-primario-claro);
-}
-.notificacion--no-leida .notificacion__texto {
+.notificacion-fila--no-leida .notificacion__texto {
   font-weight: 700;
 }
 /* La marca de "sin leer" acompaña al texto en negrita y al texto para lectores de pantalla: el color no es la única señal */
@@ -474,11 +481,36 @@ h2 {
   margin-top: 5px;
   border-radius: 50%;
 }
-.notificacion--no-leida .notificacion__punto {
+.notificacion-fila--no-leida .notificacion__punto {
   background: var(--color-primario);
 }
 .notificacion__texto {
   line-height: 1.4;
+}
+/* A5: cruz para descartar; área de 44x44 aunque el símbolo sea chico */
+.notificacion__descartar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-texto-suave);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.notificacion__descartar:hover:not(:disabled) {
+  color: var(--color-texto);
+  background: var(--color-superficie-sutil);
+}
+.notificacion__descartar:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: -2px;
+}
+.notificacion__descartar:disabled {
+  opacity: var(--opacidad-deshabilitado);
+  cursor: wait;
 }
 .notificacion__tiempo {
   grid-column: 2;
