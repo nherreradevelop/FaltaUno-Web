@@ -1,10 +1,11 @@
 import { Link, NavLink } from 'react-router';
 import { useSesion } from '../sesion/SesionContexto';
 import { Avatar } from './Avatar';
+import { CampanaNotificaciones } from './CampanaNotificaciones';
 
 /**
  * Encabezado de las pantallas con sesión (mockup W02). "Explorar" lleva a la búsqueda (CU08), "Crear actividad" al alta (CU10)
- * y el avatar a "Mi perfil" (CU04 FP paso 1).
+ * y el avatar a "Mi perfil" (CU04 FP paso 1). La campana abre las notificaciones (CU40).
  * Pendiente: Mis actividades, CU07 Mensajes y CU06 Amigos, cuando existan.
  */
 export function Encabezado() {
@@ -31,6 +32,8 @@ export function Encabezado() {
         <Link to="/actividades/crear" className="boton enlace-boton encabezado__crear">
           + Crear actividad
         </Link>
+        {/* CU40 – Notificaciones */}
+        <CampanaNotificaciones />
         <Link to="/perfil" className="encabezado__perfil" aria-label="Mi perfil" title="Mi perfil">
           <Avatar nombre={sesion.usuario.nombre} fotoUrl={sesion.usuario.fotoUrl} tamano={40} />
         </Link>
