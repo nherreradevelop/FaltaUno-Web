@@ -192,7 +192,9 @@ export function PanelNotificaciones({ alCerrar }: { alCerrar: () => void }) {
                   disabled={marcandoUna !== null}
                   aria-busy={marcandoUna === notificacion.id}
                 >
-                  <span aria-hidden="true">✓</span>
+                  <span className="notificacion__circulo" aria-hidden="true">
+                    ✓
+                  </span>
                 </button>
               )}
             </li>
