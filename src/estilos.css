@@ -472,6 +472,44 @@ h2 {
   padding: 0 20px;
 }
 
+/* --- CU11 Unirse a una actividad: formulario dentro del diálogo --- */
+.dialogo--formulario {
+  width: calc(100% - 32px);
+  max-width: 32rem;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+.unirse {
+  display: grid;
+  gap: 18px;
+}
+.unirse .dialogo__titulo {
+  margin: 0;
+}
+.unirse__seccion {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.unirse__seccion legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-weight: 700;
+}
+.unirse__seccion > .boton-secundario {
+  justify-self: start;
+}
+.unirse__aviso {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.unirse .actividad-invitado .boton-enlace {
+  min-height: 44px;
+}
+
 /* --- CU37 Cierre de sesión: aviso con "Reintentar" en el login (ER2) --- */
 .login__aviso-con-accion {
   display: flex;
@@ -768,6 +806,34 @@ h2 {
 .recorrido__marca--destino {
   background: var(--color-acento);
 }
+/* CU11 paso 5: puntos de partida de los participantes (mismo aspecto que su marcador en el mapa, en chico) */
+.recorrido__marca--participante {
+  margin-top: 0;
+  background: var(--color-avatar-2);
+  border: 2px solid var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}
+.recorrido__leyenda {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-texto-suave);
+}
+.mapa__pin-participante {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--color-superficie);
+  border-radius: 50%;
+  box-shadow: var(--sombra-suave);
+  color: var(--color-sobre-primario);
+  font-size: 13px;
+  font-weight: 700;
+}
 .recorrido__titulo {
   display: block;
   font-size: 13px;
@@ -830,6 +896,13 @@ h2 {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-primario-oscuro);
+}
+.participantes__punto-partida {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--color-texto-suave);
 }
 .participantes__remover {
   height: 36px;
