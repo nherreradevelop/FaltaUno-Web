@@ -4,8 +4,12 @@ import { obtenerParticipantes } from '../api/actividades';
 import type { ParticipanteDeActividad } from '../api/tipos';
 import { filasDeParticipantes, MENSAJE_FALLA_PARTICIPANTES } from '../paginas/mensajesActividad';
 import { useSesion } from '../sesion/SesionContexto';
+import type { MiValoracion } from '../api/valoraciones';
+import { MENSAJES_VALORACION } from '../comun/valoraciones';
 import { Avatar } from './Avatar';
 import { EstrellasDeValoracion } from './EstrellasDeValoracion';
+import { FormularioDeValoracion } from './FormularioDeValoracion';
+import { ResumenDeValoraciones, type EstadoMisValoraciones } from './ValoracionesDeActividad';
 
 export interface EstadoParticipantes {
   participantes: ParticipanteDeActividad[];
@@ -71,21 +75,47 @@ export function useParticipantes(actividadId: string, habilitado: boolean): Esta
 }
 
 interface PropsParticipantes {
+  actividadId: string;
   lista: EstadoParticipantes;
   /** A1 paso 3 y RN2: lo decide la API en las opciones del detalle (removerParticipantes). */
   puedeRemover: boolean;
-  /** RN5 / CU21: la API ofrece valorar (actividad iniciada o archivada y el usuario forma parte). */
-  puedeValorar: boolean;
+  /**
+   * CU21: valoraciones del usuario, o null si la API no ofrece valorar (la actividad no está Iniciada ni Archivada,
+   * o el usuario no forma parte, CU09 RN5).
+   */
+  valoraciones: EstadoMisValoraciones | null;
+}
+
+interface ParticipanteAValorar {
+  id: string;
+  nombre: string;
 }
 
 /** CU09 A1: lista de participantes (usuarios registrados e invitados externos), en la pestaña "Participantes". */
-export function ParticipantesDeActividad({ lista, puedeRemover, puedeValorar }: PropsParticipantes) {
+export function ParticipantesDeActividad({ actividadId, lista, puedeRemover, valoraciones }: PropsParticipantes) {
   const { sesion } = useSesion();
   const usuarioActualId = sesion?.usuario.id ?? null;
   const { participantes, hayMas, cargando, hayFalla } = lista;
+  // CU21 FP paso 3: el participante que se está valorando (el formulario está abierto)
+  const [valorando, setValorando] = useState<ParticipanteAValorar | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  function alGuardarValoracion(valoracion: MiValoracion) {
+    if (valorando === null || valoraciones === null) return;
+    valoraciones.registrar(valorando.id, valoracion);
+    setValorando(null);
+    setAviso(MENSAJES_VALORACION.guardada); // FP paso 10
+  }
+
+  function abrirValoracion(participante: ParticipanteAValorar) {
+    setAviso(null);
+    setValorando(participante);
+  }
 
   return (
     <div className="participantes">
+      {valoraciones && <ResumenDeValoraciones valoraciones={valoraciones} aviso={aviso} />}
+
       {participantes.length > 0 && (
         <ul className="participantes__lista">
           {filasDeParticipantes(participantes).map((fila) => (
@@ -94,8 +124,9 @@ export function ParticipantesDeActividad({ lista, puedeRemover, puedeValorar }: 
                 <FilaDeParticipante
                   participante={fila.participante}
                   puedeRemover={puedeRemover}
-                  puedeValorar={puedeValorar}
+                  valoraciones={valoraciones}
                   usuarioActualId={usuarioActualId}
+                  alValorar={abrirValoracion}
                 />
               ) : (
                 <FilaDeInvitado nombre={fila.nombre} invitadoPor={fila.invitadoPor} />
@@ -121,6 +152,17 @@ export function ParticipantesDeActividad({ lista, puedeRemover, puedeValorar }: 
           Ver más
         </button>
       )}
+
+      {valorando && valoraciones && (
+        <FormularioDeValoracion
+          key={valorando.id}
+          actividadId={actividadId}
+          participante={valorando}
+          valoracionActual={valoraciones.porUsuario.get(valorando.id) ?? null}
+          alGuardar={alGuardarValoracion}
+          alCerrar={() => setValorando(null)}
+        />
+      )}
     </div>
   );
 }
@@ -128,15 +170,18 @@ export function ParticipantesDeActividad({ lista, puedeRemover, puedeValorar }: 
 interface PropsFila {
   participante: ParticipanteDeActividad;
   puedeRemover: boolean;
-  puedeValorar: boolean;
+  valoraciones: EstadoMisValoraciones | null;
   usuarioActualId: string | null;
+  alValorar: (participante: ParticipanteAValorar) => void;
 }
 
-function FilaDeParticipante({ participante, puedeRemover, puedeValorar, usuarioActualId }: PropsFila) {
+function FilaDeParticipante({ participante, puedeRemover, valoraciones, usuarioActualId, alValorar }: PropsFila) {
   const { usuario } = participante;
   const esElUsuarioActual = usuario !== null && usuario.id === usuarioActualId;
-  // CU21: se valora a los demás participantes registrados, no a uno mismo ni a una cuenta cerrada
-  const mostrarEstrellas = puedeValorar && usuario !== null && !esElUsuarioActual;
+  // CU21 RN1 y RN5: se valora a los demás participantes registrados, no a uno mismo ni a una cuenta cerrada.
+  // Las estrellas aparecen cuando llegaron las valoraciones, así muestran si ya lo valoraste y con cuánto.
+  const puedeValorarlo =
+    valoraciones !== null && usuario !== null && !esElUsuarioActual && valoraciones.porUsuario.has(usuario.id);
   return (
     <div className="participantes__persona">
       {usuario ? (
@@ -159,7 +204,13 @@ function FilaDeParticipante({ participante, puedeRemover, puedeValorar, usuarioA
       ) : (
         <span className="participantes__usuario texto-suave">Usuario eliminado</span>
       )}
-      {mostrarEstrellas && <EstrellasDeValoracion nombre={usuario.nombre} />}
+      {puedeValorarlo && (
+        <EstrellasDeValoracion
+          nombre={usuario.nombre}
+          valoracion={valoraciones.porUsuario.get(usuario.id) ?? null}
+          alPresionar={() => alValorar({ id: usuario.id, nombre: usuario.nombre })}
+        />
+      )}
       {/* CU09 A1 paso 3. Pendiente: CU31 – Remover a un participante */}
       {puedeRemover && !participante.esOrganizador && (
         <button type="button" className="boton-secundario participantes__remover" disabled title="Disponible con el CU31">

@@ -34,7 +34,7 @@ export interface OpcionPendiente {
  * CU09 FP paso 4: las acciones se reparten en tres lugares, de más a menos usadas. Todas pertenecen a otro caso de
  * uso: se muestran deshabilitadas hasta que exista (unirse, CU11, ya está). La API decide cuáles corresponden a cada usuario (RN2).
  * "Modificar mi participación" (CU28) no se muestra por decisión del equipo, aunque la API la siga ofreciendo.
- * "Valorar" (CU21) no es un botón: son estrellas junto a cada participante, en la pestaña Participantes.
+ * "Valorar" (CU21) no es un botón aparte: son estrellas junto a cada participante, en la pestaña Participantes.
  */
 
 /**

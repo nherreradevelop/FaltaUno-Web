@@ -18,6 +18,7 @@ import { IconoCompartir, IconoMasOpciones, IconoSilenciar, IconoTilde } from '..
 import { MapaDelRecorrido } from '../componentes/MapaDelRecorrido';
 import { puntosDePartidaEnMapa } from '../comun/puntosDePartida';
 import { ParticipantesDeActividad, useParticipantes, type EstadoParticipantes } from '../componentes/ParticipantesDeActividad';
+import { useMisValoraciones, type EstadoMisValoraciones } from '../componentes/ValoracionesDeActividad';
 import {
   ACCIONES_DEL_MENU,
   ACCIONES_RAPIDAS,
@@ -204,6 +205,9 @@ interface PropsDetalle {
 
 function DetalleDeLaActividad({ actividad, alTerminarIncorporacion }: PropsDetalle) {
   const participantes = useParticipantes(actividad.id, actividad.opciones.includes('verParticipantes'));
+  // CU21: solo si la API ofrece valorar (actividad Iniciada o Archivada y el usuario forma parte, RN5)
+  const puedeValorar = actividad.opciones.includes('valorar');
+  const valoraciones = useMisValoraciones(actividad.id, puedeValorar);
   const [pestanaActiva, setPestanaActiva] = useState<PestanaDeActividad>('participantes');
   // Memo: el mapa vuelve a marcar los puntos solo cuando cambia la lista, no en cada render
   const puntosDePartida = useMemo(() => puntosDePartidaEnMapa(participantes.participantes), [participantes.participantes]);
@@ -232,6 +236,7 @@ function DetalleDeLaActividad({ actividad, alTerminarIncorporacion }: PropsDetal
         <Pestanas
           actividad={actividad}
           participantes={participantes}
+          valoraciones={puedeValorar ? valoraciones : null}
           pestanaActiva={pestanaActiva}
           alElegirPestana={setPestanaActiva}
         />
@@ -486,12 +491,13 @@ function pendiente(accion: OpcionPendiente): string {
 interface PropsPestanas {
   actividad: DetalleActividad;
   participantes: EstadoParticipantes;
+  valoraciones: EstadoMisValoraciones | null;
   pestanaActiva: PestanaDeActividad;
   alElegirPestana: (pestana: PestanaDeActividad) => void;
 }
 
 /** Participantes (A1), Chat y Gastos en la misma pantalla, como pestañas. */
-function Pestanas({ actividad, participantes, pestanaActiva, alElegirPestana }: PropsPestanas) {
+function Pestanas({ actividad, participantes, valoraciones, pestanaActiva, alElegirPestana }: PropsPestanas) {
   const pestanas = pestanasDisponibles(actividad.opciones);
   const definicionActiva = pestanas.find(({ pestana }) => pestana === pestanaActiva) ?? pestanas[0];
 
@@ -506,7 +512,12 @@ function Pestanas({ actividad, participantes, pestanaActiva, alElegirPestana }: 
         <h2 id="titulo-unica-seccion" className="actividad__titulo-seccion">
           {tituloDePestana(definicionActiva, actividad)}
         </h2>
-        <ContenidoDePestana definicion={definicionActiva} actividad={actividad} participantes={participantes} />
+        <ContenidoDePestana
+          definicion={definicionActiva}
+          actividad={actividad}
+          participantes={participantes}
+          valoraciones={valoraciones}
+        />
       </section>
     );
   }
@@ -531,7 +542,12 @@ function Pestanas({ actividad, participantes, pestanaActiva, alElegirPestana }: 
       </div>
 
       <div role="tabpanel" id={`panel-${definicionActiva.pestana}`} aria-labelledby={`pestana-${definicionActiva.pestana}`}>
-        <ContenidoDePestana definicion={definicionActiva} actividad={actividad} participantes={participantes} />
+        <ContenidoDePestana
+          definicion={definicionActiva}
+          actividad={actividad}
+          participantes={participantes}
+          valoraciones={valoraciones}
+        />
       </div>
     </section>
   );
@@ -549,19 +565,21 @@ interface PropsContenido {
   definicion: DefinicionDePestana;
   actividad: DetalleActividad;
   participantes: EstadoParticipantes;
+  valoraciones: EstadoMisValoraciones | null;
 }
 
-function ContenidoDePestana({ definicion, actividad, participantes }: PropsContenido) {
+function ContenidoDePestana({ definicion, actividad, participantes, valoraciones }: PropsContenido) {
   // Pendiente: CU16 (chat grupal) y CU34 (gastos y balances)
   if (definicion.casoDeUsoPendiente !== null) {
     return <p className="texto-suave">Disponible con el {definicion.casoDeUsoPendiente}.</p>;
   }
-  // CU09 A1: con la opción de remover si es el organizador (pendiente CU31)
+  // CU09 A1: con la opción de remover si es el organizador (pendiente CU31) y las valoraciones (CU21)
   return (
     <ParticipantesDeActividad
+      actividadId={actividad.id}
       lista={participantes}
       puedeRemover={actividad.opciones.includes('removerParticipantes')}
-      puedeValorar={actividad.opciones.includes('valorar')}
+      valoraciones={valoraciones}
     />
   );
 }
