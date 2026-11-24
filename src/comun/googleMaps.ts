@@ -53,16 +53,22 @@ export interface MarcadorDeGoogle {
 
 export interface BibliotecaDeMapas {
   Map: new (contenedor: HTMLElement, opciones: OpcionesDelMapa) => MapaDeGoogle;
+}
+
+/** LatLngBounds está en la librería "core", no en "maps". */
+export interface BibliotecaCentral {
   LatLngBounds: new () => LimitesDeGoogle;
 }
 
 export interface BibliotecaDeMarcadores {
   AdvancedMarkerElement: new (opciones: OpcionesDelMarcador) => MarcadorDeGoogle;
-  PinElement: new (opciones: OpcionesDelPin) => { element: HTMLElement };
+  /** El pin ya es un elemento HTML: se pasa directo como content (la propiedad element está obsoleta). */
+  PinElement: new (opciones: OpcionesDelPin) => HTMLElement;
 }
 
 export interface GoogleMapsGlobal {
   maps: {
+    importLibrary(nombre: 'core'): Promise<BibliotecaCentral>;
     importLibrary(nombre: 'maps'): Promise<BibliotecaDeMapas>;
     importLibrary(nombre: 'marker'): Promise<BibliotecaDeMarcadores>;
   };

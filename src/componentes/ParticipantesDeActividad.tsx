@@ -193,6 +193,12 @@ function FilaDeParticipante({ participante, puedeRemover, valoraciones, usuarioA
               {esElUsuarioActual && <span className="participantes__vos"> (vos)</span>}
             </span>
             {participante.esOrganizador && <span className="participantes__rol">Organizador</span>}
+            {/* CU11 paso 5: solo llega si quien mira forma parte de la actividad */}
+            {participante.puntoPartida && (
+              <span className="participantes__punto-partida" title={participante.puntoPartida.direccion}>
+                Sale desde {participante.puntoPartida.direccion}
+              </span>
+            )}
           </span>
         </Link>
       ) : (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { obtenerDetalleDeActividad } from '../api/actividades';
 import type { DetalleActividad } from '../api/tipos';
@@ -12,9 +12,11 @@ import {
   proporcionOcupada,
 } from '../comun/formato';
 import { Avatar } from '../componentes/Avatar';
+import { FormularioUnirse, type ResultadoAlUnirse } from '../componentes/FormularioUnirse';
 import { LimiteDeError } from '../componentes/LimiteDeError';
 import { IconoCompartir, IconoMasOpciones, IconoSilenciar, IconoTilde } from '../componentes/Iconos';
 import { MapaDelRecorrido } from '../componentes/MapaDelRecorrido';
+import { puntosDePartidaEnMapa } from '../comun/puntosDePartida';
 import { ParticipantesDeActividad, useParticipantes, type EstadoParticipantes } from '../componentes/ParticipantesDeActividad';
 import { useMisValoraciones, type EstadoMisValoraciones } from '../componentes/ValoracionesDeActividad';
 import {
@@ -39,6 +41,9 @@ export interface EstadoDeActividadCreada {
 }
 
 type EstadoPantalla = { tipo: 'cargando' } | { tipo: 'listo'; actividad: DetalleActividad } | ErrorDeActividad;
+
+/** CU11 FP paso 10, E1, E2 y E3: resultado de intentar unirse, que se muestra arriba del detalle. */
+type AvisoDeIncorporacion = { tipo: 'exito' | 'error'; mensaje: string } | null;
 
 /**
  * W – CU09 Detalle de actividad (/actividades/:id).
@@ -71,6 +76,9 @@ function PantallaDetalle({ actividadId }: { actividadId: string }) {
   const [estado, setEstado] = useState<EstadoPantalla>({ tipo: 'cargando' });
   /** Se incrementa al tocar "Reintentar" (CU09 ER1, RNF-10). */
   const [intento, setIntento] = useState(0);
+  const [aviso, setAviso] = useState<AvisoDeIncorporacion>(null);
+  /** Cambia al recargar después de unirse: vuelve a montar el detalle para que pida de nuevo los participantes. */
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
     // Si el usuario sale de la pantalla antes de que llegue la respuesta, se descarta
@@ -90,6 +98,23 @@ function PantallaDetalle({ actividadId }: { actividadId: string }) {
     };
   }, [actividadId, intento]);
 
+  /**
+   * CU11 FP paso 10 (y E1/E2/E3): avisa el resultado y recarga el detalle sin mostrar el esqueleto,
+   * así se ve "Ya estás anotado" y los cupos actualizados (FP paso 8).
+   */
+  const alTerminarIncorporacion = useCallback(
+    (resultado: ResultadoAlUnirse) => {
+      setAviso({ tipo: resultado.tipo === 'unido' ? 'exito' : 'error', mensaje: resultado.mensaje });
+      obtenerDetalleDeActividad(actividadId)
+        .then((actividad) => {
+          setEstado({ tipo: 'listo', actividad });
+          setVersion((anterior) => anterior + 1);
+        })
+        .catch((error: unknown) => setEstado(clasificarErrorDeActividad(error)));
+    },
+    [actividadId],
+  );
+
   // CU09 E2: se informa que la actividad no está disponible y se vuelve al inicio
   if (estado.tipo === 'noDisponible') {
     return <Navigate to="/" replace state={{ aviso: estado.mensaje }} />;
@@ -99,6 +124,11 @@ function PantallaDetalle({ actividadId }: { actividadId: string }) {
     <main className="actividad">
       <BotonVolver />
       <AvisoDeActividadCreada />
+      {aviso && (
+        <p className={aviso.tipo === 'exito' ? 'aviso-info' : 'aviso-error'} role={aviso.tipo === 'exito' ? 'status' : 'alert'}>
+          {aviso.mensaje}
+        </p>
+      )}
       {estado.tipo === 'cargando' && <EsqueletoDeCarga />}
 
       {estado.tipo === 'falla' && (
@@ -110,7 +140,9 @@ function PantallaDetalle({ actividadId }: { actividadId: string }) {
         </div>
       )}
 
-      {estado.tipo === 'listo' && <DetalleDeLaActividad actividad={estado.actividad} />}
+      {estado.tipo === 'listo' && (
+        <DetalleDeLaActividad key={version} actividad={estado.actividad} alTerminarIncorporacion={alTerminarIncorporacion} />
+      )}
     </main>
   );
 }
@@ -166,12 +198,21 @@ function EsqueletoDeCarga() {
  * Disposición: a la izquierda lo que el usuario lee para decidir (qué, cuándo, si hay lugar, quién va, pronóstico,
  * cómo llegar); a la derecha lo que puede hacer y las pestañas. En pantallas angostas las dos columnas se apilan.
  */
-function DetalleDeLaActividad({ actividad }: { actividad: DetalleActividad }) {
+interface PropsDetalle {
+  actividad: DetalleActividad;
+  alTerminarIncorporacion: (resultado: ResultadoAlUnirse) => void;
+}
+
+function DetalleDeLaActividad({ actividad, alTerminarIncorporacion }: PropsDetalle) {
   const participantes = useParticipantes(actividad.id, actividad.opciones.includes('verParticipantes'));
   // CU21: solo si la API ofrece valorar (actividad Iniciada o Archivada y el usuario forma parte, RN5)
   const puedeValorar = actividad.opciones.includes('valorar');
   const valoraciones = useMisValoraciones(actividad.id, puedeValorar);
   const [pestanaActiva, setPestanaActiva] = useState<PestanaDeActividad>('participantes');
+  // Memo: el mapa vuelve a marcar los puntos solo cuando cambia la lista, no en cada render
+  const puntosDePartida = useMemo(() => puntosDePartidaEnMapa(participantes.participantes), [participantes.participantes]);
+  /** CU11 FP paso 3: el formulario para unirse se abre desde la acción principal. */
+  const [formularioAbierto, setFormularioAbierto] = useState(false);
 
   return (
     <div className="actividad__columnas">
@@ -185,11 +226,13 @@ function DetalleDeLaActividad({ actividad }: { actividad: DetalleActividad }) {
         )}
         <Pronostico actividad={actividad} />
         {/* CU09 A2: salida, destino y mapa juntos */}
-        {actividad.opciones.includes('verMapa') && <MapaDelRecorrido origen={actividad.origen} destino={actividad.destino} />}
+        {actividad.opciones.includes('verMapa') && (
+          <MapaDelRecorrido origen={actividad.origen} destino={actividad.destino} puntosDePartida={puntosDePartida} />
+        )}
       </div>
 
       <aside className="actividad__lateral">
-        <Acciones actividad={actividad} />
+        <Acciones actividad={actividad} alUnirse={() => setFormularioAbierto(true)} />
         <Pestanas
           actividad={actividad}
           participantes={participantes}
@@ -198,6 +241,18 @@ function DetalleDeLaActividad({ actividad }: { actividad: DetalleActividad }) {
           alElegirPestana={setPestanaActiva}
         />
       </aside>
+
+      {actividad.opciones.includes('unirse') && (
+        <FormularioUnirse
+          actividad={actividad}
+          abierto={formularioAbierto}
+          alCancelar={() => setFormularioAbierto(false)} // CU11 A1: sigue fuera de la actividad
+          alTerminar={(resultado) => {
+            setFormularioAbierto(false);
+            alTerminarIncorporacion(resultado);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -363,9 +418,10 @@ function Pronostico({ actividad }: { actividad: DetalleActividad }) {
 
 /**
  * CU09 FP paso 4 y RN2: la acción principal grande, las de un toque como botones con ícono y el resto en
- * "Más opciones". Solo las que la API habilitó, deshabilitadas hasta que exista su caso de uso.
+ * "Más opciones". Solo las que la API habilitó; unirse (CU11) ya funciona, el resto queda deshabilitado
+ * hasta que exista su caso de uso.
  */
-function Acciones({ actividad }: { actividad: DetalleActividad }) {
+function Acciones({ actividad, alUnirse }: { actividad: DetalleActividad; alUnirse: () => void }) {
   const principal = accionPrincipal(actividad.opciones);
   const rapidas = accionesOfrecidas(ACCIONES_RAPIDAS, actividad.opciones);
   const delMenu = accionesOfrecidas(ACCIONES_DEL_MENU, actividad.opciones);
@@ -376,7 +432,7 @@ function Acciones({ actividad }: { actividad: DetalleActividad }) {
   return (
     <section className="tarjeta actividad__acciones" aria-label="Acciones">
       {principal && (
-        <button type="button" className="boton actividad__accion-principal" disabled title={pendiente(principal)}>
+        <button type="button" className="boton actividad__accion-principal" onClick={alUnirse}>
           {principal.etiqueta}
         </button>
       )}
@@ -396,7 +452,9 @@ function Acciones({ actividad }: { actividad: DetalleActividad }) {
         {delMenu.length > 0 && <MenuDeOpciones acciones={delMenu} />}
       </div>
       {/* Que un botón apagado no parezca roto: se avisa a la vista, no solo al pasar el mouse */}
-      <p className="actividad__proximamente">Estas opciones van a estar disponibles próximamente.</p>
+      {(rapidas.length > 0 || delMenu.length > 0) && (
+        <p className="actividad__proximamente">Estas opciones van a estar disponibles próximamente.</p>
+      )}
     </section>
   );
 }
