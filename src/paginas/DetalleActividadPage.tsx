@@ -12,6 +12,7 @@ import {
   proporcionOcupada,
 } from '../comun/formato';
 import { Avatar } from '../componentes/Avatar';
+import { GastosDeActividad } from '../componentes/GastosDeActividad';
 import { LimiteDeError } from '../componentes/LimiteDeError';
 import { IconoCompartir, IconoMasOpciones, IconoSilenciar, IconoTilde } from '../componentes/Iconos';
 import { MapaDelRecorrido } from '../componentes/MapaDelRecorrido';
@@ -494,6 +495,7 @@ interface PropsContenido {
 }
 
 function ContenidoDePestana({ definicion, actividad, participantes }: PropsContenido) {
+  if (definicion.pestana === 'gastos') return <GastosDeActividad key={actividad.id} actividadId={actividad.id} />;
   // Pendiente: CU16 (chat grupal) y CU34 (gastos y balances)
   if (definicion.casoDeUsoPendiente !== null) {
     return <p className="texto-suave">Disponible con el {definicion.casoDeUsoPendiente}.</p>;

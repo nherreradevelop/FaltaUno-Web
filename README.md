@@ -51,6 +51,15 @@ docker compose watch             # recarga en caliente: copia los cambios de src
 docker compose -f docker-compose.yml -f docker-compose.produccion.yml up -d --build
 ```
 
+## Gastos de actividades — CU23 a CU25
+
+En una actividad Iniciada, la pestaña Gastos permite registrar, consultar, editar y eliminar gastos.
+El formulario muestra el reparto exacto e identifica a los invitados externos y su responsable.
+Solo quien registró el gasto puede editarlo o eliminarlo. Ante una respuesta perdida, usar
+“Verificar resultado” antes de reenviar; ante cambios concurrentes, revisar la versión actual.
+Requiere las migraciones 005, 006 y 007 de FaltaUno-API. Los cambios avisan al pagador y reparto por CU40;
+al editar se avisa solo a los nuevos involucrados. CU26 permite registrar pagos desde balances; cada pago solo lo ven sus dos partes y solo el autor puede editarlo o eliminarlo. El historial vence a los seis meses desde que se archiva la actividad.
+
 ## Dashboard y filtros
 
 El dashboard muestra primero las actividades que gestionás, luego las que integrás y finalmente «Actividades que podrían interesarte». Cada sección tiene su propia paginación; las actividades propias siguen visibles aunque estén completas.
