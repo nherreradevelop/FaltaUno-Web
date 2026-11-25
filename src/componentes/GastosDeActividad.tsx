@@ -2,7 +2,7 @@ import { obtenerGasto } from '../api/gastos';
 import { ErrorApi } from '../api/cliente';
 import { PagosDeActividad } from './PagosDeActividad';
 import { useEffect, useState } from 'react';
-import type { Gasto } from '../api/gastos';
+import type { Gasto, PersonaGasto } from '../api/gastos';
 import { nombrePersona } from '../comun/gastos';
 import { formatearFechaHora, formatearMonto } from '../comun/formato';
 import { useGastos } from '../hooks/useGastos';
@@ -139,7 +139,9 @@ export function GastosDeActividad({ actividadId }: { actividadId: string }) {
         <article className="gastos__detalle">
           <h3>{seleccionado.concepto}</h3>
           <strong className="gastos__monto">{formatearMonto(seleccionado.montoCentesimos)}</strong>
-          <p>Pagó {nombrePersona(personas, seleccionado.pagadorId)}</p>
+          <p>
+            Pagó <NombrePagador personas={personas} id={seleccionado.pagadorId} />
+          </p>
           <p className="texto-suave">{formatearFechaHora(seleccionado.fechaRegistro)}</p>
           <h4>Reparto</h4>
           <ul className="gastos__partes">
@@ -186,7 +188,9 @@ export function GastosDeActividad({ actividadId }: { actividadId: string }) {
                 >
                   <span>
                     <strong>{gasto.concepto}</strong>
-                    <small>Pagó {nombrePersona(personas, gasto.pagadorId)}</small>
+                    <small>
+                      Pagó <NombrePagador personas={personas} id={gasto.pagadorId} />
+                    </small>
                   </span>
                   <strong>{formatearMonto(gasto.montoCentesimos)}</strong>
                 </button>
@@ -222,5 +226,16 @@ export function GastosDeActividad({ actividadId }: { actividadId: string }) {
         }}
       />
     </section>
+  );
+}
+
+/** Destaca el nombre y conserva el contexto del invitado con el estilo del texto que lo acompaña. */
+function NombrePagador({ personas, id }: { personas: PersonaGasto[]; id: string }) {
+  const persona = personas.find((p) => p.id === id);
+  return (
+    <>
+      <b className="gastos__pagador">{persona?.nombre ?? 'Participante'}</b>
+      {persona?.invitadoId && <> (invitado de {persona.responsable})</>}
+    </>
   );
 }
