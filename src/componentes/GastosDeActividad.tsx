@@ -103,7 +103,7 @@ export function GastosDeActividad({ actividadId }: { actividadId: string }) {
           </button>
         </div>
       )}
-      {modelo.opciones?.motivo && <p className="aviso-info">{modelo.opciones.motivo}</p>}
+      {modelo.opciones?.motivo && <p className="aviso-info aviso-advertencia">{modelo.opciones.motivo}</p>}
       {modelo.codigo === 'GASTO_MODIFICADO' && seleccionado && (
         <div className="aviso-info">
           <p>

@@ -101,7 +101,7 @@ export function PagosDeActividad({
           {modelo.error}
         </p>
       )}
-      {modelo.opciones?.motivo && <p className="aviso-info">{modelo.opciones.motivo}</p>}
+      {modelo.opciones?.motivo && <p className="aviso-info aviso-advertencia">{modelo.opciones.motivo}</p>}
       {modelo.pendiente && (
         <div className="aviso-info">
           <p>Operación pendiente de verificación.</p>
@@ -198,7 +198,7 @@ export function PagosDeActividad({
           </p>
           {modelo.cargando && <p role="status">Cargando pagos…</p>}
           {modelo.opciones?.historialVencido && (
-            <p className="aviso-info">Venció el plazo de conservación del historial de pagos.</p>
+            <p className="aviso-info aviso-advertencia">Venció el plazo de conservación del historial de pagos.</p>
           )}
           {modelo.opciones?.historialHasta && !modelo.opciones.historialVencido && (
             <p>Disponible hasta {formatearFechaHora(modelo.opciones.historialHasta)}.</p>

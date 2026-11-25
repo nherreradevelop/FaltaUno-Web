@@ -2345,3 +2345,17 @@ h2 {
   flex-shrink: 0;
   white-space: nowrap;
 }
+
+/* Restricciones y errores financieros se distinguen de las confirmaciones. */
+.gastos .aviso-advertencia,
+.gastos .aviso-error {
+  color: var(--color-advertencia);
+  background-color: var(--color-advertencia-suave);
+  border-left: 3px solid var(--color-acento);
+}
+.gastos .gastos__error {
+  color: var(--color-advertencia);
+}
+.gastos .gastos__campos [aria-invalid='true'] {
+  border-color: var(--color-acento);
+}
