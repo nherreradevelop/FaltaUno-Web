@@ -1,3 +1,4 @@
+import { conectarActualizacionesFinancieras, refrescarFinanzasDelUsuario } from '../comun/actualizacionesFinancieras';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { contarNotificacionesNoLeidas, type Notificacion } from '../api/notificaciones';
 import { conectarTiempoReal } from '../api/tiempoReal';
@@ -25,6 +26,7 @@ const NotificacionesContexto = createContext<ValorNotificaciones | null>(null);
 export function ProveedorNotificaciones({ children }: { children: ReactNode }) {
   const { sesion } = useSesion();
   const token = sesion?.token ?? null;
+  const usuarioId = sesion?.usuario.id;
   const [noLeidas, setNoLeidas] = useState(0);
   const nuevas = useMemo(
     () => new Observable<Notificacion>((error) => console.error('Falló un observador de notificaciones', error)),
@@ -34,7 +36,7 @@ export function ProveedorNotificaciones({ children }: { children: ReactNode }) {
   const [pedidoDeRefresco, setPedidoDeRefresco] = useState(0);
 
   useEffect(() => {
-    if (token === null) return;
+    if (token === null || !usuarioId) return;
     let vigente = true;
 
     // ER1 y ER3: si falla, se conserva el último valor y se vuelve a pedir más tarde
@@ -47,11 +49,15 @@ export function ProveedorNotificaciones({ children }: { children: ReactNode }) {
     }
 
     function alCambiarVisibilidad() {
-      if (document.visibilityState === 'visible') refrescarNoLeidas();
+      if (document.visibilityState === 'visible') {
+        refrescarNoLeidas();
+        refrescarFinanzasDelUsuario(usuarioId!);
+      }
     }
 
     refrescarNoLeidas();
     const socket = conectarTiempoReal(token);
+    const desconectarFinanzas = conectarActualizacionesFinancieras(socket, usuarioId);
     socket.on(EVENTOS_EN_VIVO.nueva, (aviso: AvisoDeNotificacionNueva) => {
       setNoLeidas(aviso.noLeidas);
       nuevas.notificar(aviso.notificacion);
@@ -61,16 +67,21 @@ export function ProveedorNotificaciones({ children }: { children: ReactNode }) {
     socket.io.on('reconnect', refrescarNoLeidas);
     document.addEventListener('visibilitychange', alCambiarVisibilidad);
     // Al volver a la ventana del navegador (otra app o pestaña) también se actualiza el indicador
-    window.addEventListener('focus', refrescarNoLeidas);
+    const alEnfocar = () => {
+      refrescarNoLeidas();
+      refrescarFinanzasDelUsuario(usuarioId);
+    };
+    window.addEventListener('focus', alEnfocar);
 
     return () => {
       vigente = false;
       document.removeEventListener('visibilitychange', alCambiarVisibilidad);
-      window.removeEventListener('focus', refrescarNoLeidas);
+      window.removeEventListener('focus', alEnfocar);
       socket.io.off('reconnect', refrescarNoLeidas);
+      desconectarFinanzas();
       socket.disconnect();
     };
-  }, [token, nuevas]);
+  }, [token, usuarioId, nuevas]);
 
   // Pedido puntual del contador (al abrir el panel), sin reabrir la conexión en tiempo real
   useEffect(() => {
