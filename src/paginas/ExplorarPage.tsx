@@ -9,6 +9,7 @@ import { obtenerUbicacion } from '../comun/ubicacion';
 import { FiltrosDeActividades, type ErroresDeFiltros } from '../componentes/FiltrosDeActividades';
 import { EsqueletoDeActividades } from '../componentes/EsqueletoDeActividades';
 import { ResultadosDeBusqueda } from '../componentes/ResultadosDeBusqueda';
+import { BannerActividadesHoy } from '../componentes/BannerActividadesHoy';
 import { terminoLaPrimeraCarga, useActividadesPorGrupo, type ResultadoDeGrupo } from '../comun/useActividadesPorGrupo';
 import { mensajeFallaDeFiltros } from './mensajesExplorar';
 
@@ -185,6 +186,7 @@ function SeccionesDelDashboard({
 
   return (
     <>
+      {otras.hayIniciadasHoy && <BannerActividadesHoy />}
       {tieneQueMostrarse(organizando) && (
         <ResultadosDeBusqueda id="organizando" titulo="Actividades que estás organizando" resultado={organizando} />
       )}
