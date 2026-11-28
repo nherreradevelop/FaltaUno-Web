@@ -6,7 +6,7 @@ import { CampanaNotificaciones } from './CampanaNotificaciones';
 /**
  * Encabezado de las pantallas con sesión (mockup W02). "Explorar" lleva a la búsqueda (CU08), "Crear actividad" al alta (CU10)
  * y el avatar a "Mi perfil" (CU04 FP paso 1). La campana abre las notificaciones (CU40).
- * Pendiente: Mis actividades, CU07 Mensajes y CU06 Amigos, cuando existan.
+ * Pendiente: CU07 Mensajes y CU06 Amigos, cuando existan.
  */
 export function Encabezado() {
   const { sesion } = useSesion();
@@ -24,6 +24,9 @@ export function Encabezado() {
         <nav className="encabezado__navegacion" aria-label="Principal">
           <NavLink to="/" end className="encabezado__enlace">
             Explorar actividades
+          </NavLink>
+          <NavLink to="/mis-actividades" className="encabezado__enlace">
+            Mis actividades
           </NavLink>
         </nav>
       </div>

@@ -3,6 +3,7 @@ import { CrearActividadPage } from '../paginas/CrearActividadPage';
 import { DetalleActividadPage } from '../paginas/DetalleActividadPage';
 import { ExplorarPage } from '../paginas/ExplorarPage';
 import { LoginPage } from '../paginas/LoginPage';
+import { MisActividadesPage } from '../paginas/MisActividadesPage';
 import { PerfilPage } from '../paginas/PerfilPage';
 import { DisenoPrivado } from './DisenoPrivado';
 import { RutaPrivada, RutaSoloSinSesion } from './RutaPrivada';
@@ -26,6 +27,7 @@ const rutas = createBrowserRouter([
     children: [
       // CU08: la búsqueda de actividades es la pantalla principal con sesión
       { path: '/', element: <ExplorarPage /> },
+      { path: '/mis-actividades', element: <MisActividadesPage /> },
       // CU04 FP y A1
       { path: '/perfil', element: <PerfilPage /> },
       { path: '/usuarios/:id', element: <PerfilPage /> },

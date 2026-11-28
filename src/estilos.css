@@ -2359,3 +2359,108 @@ h2 {
 .gastos .gastos__campos [aria-invalid='true'] {
   border-color: var(--color-acento);
 }
+
+/* CU42: listado propio de actividades iniciadas. */
+.mis-actividades {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+.mis-actividades__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.mis-actividades h1 {
+  margin: 0 0 8px;
+}
+.mis-actividades h2 {
+  margin-bottom: 20px;
+}
+.mis-actividades__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+}
+.mis-actividades__tarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+}
+.mis-actividades__tarjeta h3,
+.mis-actividades__tarjeta p {
+  margin: 0;
+}
+.mis-actividades__tarjeta .enlace-boton {
+  margin-top: auto;
+  min-height: 44px;
+}
+.mis-actividades__etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mis-actividades__vacio,
+.mis-actividades__error {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) {
+  .mis-actividades {
+    padding: 24px 16px;
+  }
+  .mis-actividades__encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .encabezado__izquierda {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .encabezado__navegacion {
+    flex-wrap: wrap;
+  }
+}
+
+/* CU42 A4: acceso contextual desde Explorar a las actividades propias de hoy. */
+.banner-actividades-hoy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 24px;
+  border: 1px solid var(--color-primario);
+  border-radius: 20px;
+  background: var(--color-primario-claro);
+  color: var(--color-primario-oscuro);
+}
+.banner-actividades-hoy strong {
+  font-size: 1.1rem;
+}
+.banner-actividades-hoy p {
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+.banner-actividades-hoy .enlace-boton {
+  flex-shrink: 0;
+  min-height: 44px;
+}
+@media (max-width: 700px) {
+  .banner-actividades-hoy {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+}
+
+/* CU42: el texto acompaña el color para identificar las actividades que comienzan hoy. */
+.etiqueta--hoy {
+  background: var(--color-exito-suave);
+  color: var(--color-exito);
+}
